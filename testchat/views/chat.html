@@ -1,19 +1,35 @@
 <!doctype html>
 <html>
 <head>
-    <title>Socket.IO chat</title>
+    <title>Chat</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font: 13px Helvetica, Arial; }
         form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
         form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
         form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-        #messages { list-style-type: none; margin: 0; padding: 0; }
+        #messages { list-style-type: none; margin: 64px; padding: 0; }
         #messages li { padding: 5px 10px; }
         #messages li:nth-child(odd) { background: #eee; }
     </style>
 </head>
 <body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="#">
+            <p>Redis session demo</p>
+        </a></div><div class="container">
+    <p class="navbar-text navbar-right">Hi you are login as <b><%= email %></b> (<a href="/logout/">Logout</a>)</p>
+    <p class="navbar-text navbar-right">Home (<a href="/home">Home</a>)</p>
+</div>
+</nav>
 <ul id="messages"></ul>
 <form action="">
     <input id="m" autocomplete="off" /><button>Send</button>
@@ -21,15 +37,77 @@
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
-    var socket = io();
-    $('form').submit(function(){
-        socket.emit('chat message', $('#m').val());
-        $('#m').val('');
-        return false;
+    $(document).ready(function(){
+
+//        $.get("http://localhost:3000/loadChat",function(res){
+//            $.each(res.message,function(index,value) {
+//                $("#messages").append($('<li>').text(value.user_name+':'+value.message));
+//            });
+//        });
+        var socket = io();
+        $('form').submit(function(){
+            if($("#m").text !== "") {
+                socket.emit('chat message', $('#m').val());
+                $.post("/addChat",
+                        { text : $("#m").val() },
+                        function(res){
+                            if(!res.error) {
+                                alert(res.message);
+                            }
+                        });
+                $('#m').val('');
+                return false;
+
+            }
+        });
+        socket.on('chat message', function(msg){
+            console.log(">> " +msg);
+            renderMessage(msg);
+            scrollToBottom();
+        });
+        function scrollToBottom () {
+            $(window).scrollTop($('#messages').height());
+        }
+        function leadZero(number) {
+            return (number < 10) ? '0'+number : number;
+        }
+        function getTime(timestamp) {
+            var t, h, m, s, time;
+            t = new Date(timestamp);
+            h = leadZero(t.getHours());
+            m = leadZero(t.getMinutes());
+            s = leadZero(t.getSeconds());
+            return '' + h  + ':' + m + ':' + s;
+        }
+        /**
+         * renders messages to the DOM
+         * nothing fancy
+         */
+        function renderMessage(value) {
+            var html = "<li class='row'>";
+            html += "<small class='time'>" + getTime(value.created_date) + " </small>";
+            html += "<span class='name'>" + value.user_name + ": </span>";
+            html += "<span class='msg'>" + value.message + "</span>";
+            html += "</li>";
+            $('#messages').append(html);  // append to list
+            return;
+        }
+
+        function loadMessages() {
+            $.get('http://localhost:3000/loadChat', function(res){
+                $.each(res.message,function(index,value) {
+                    renderMessage(value);
+                });
+                scrollToBottom();
+            })
+        }
+        loadMessages();
     });
-    socket.on('chat message', function(msg){
-        $('#messages').append($('<li>').text(msg));
-    });
+
+
 </script>
 </body>
 </html>
+
+
+

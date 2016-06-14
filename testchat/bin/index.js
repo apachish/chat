@@ -84,6 +84,12 @@ function handle_database(req,type,callback) {
                     case "getStatus" :
                         SQLquery = "SELECT * FROM user_status WHERE user_id="+req.session.key["user_id"];
                         break;
+                    case "addChat" :
+                        SQLquery = "INSERT into chat(user_id,message) VALUES ("+req.session.key["user_id"]+",'"+req.body.text+"')";
+                        break;
+                    case "getChat" :
+                        SQLquery = "SELECT * FROM chat as c LEFT JOIN user_login as u on c.user_id = u.user_id ORDER BY created_date ASC";
+                        break;
                     default :
                         break;
                 }
@@ -96,6 +102,8 @@ function handle_database(req,type,callback) {
                         if(type === "login") {
                             callback(rows.length === 0 ? false : rows[0]);
                         } else if(type === "getStatus") {
+                            callback(rows.length === 0 ? false : rows);
+                        } else if(type === "getChat") {
                             callback(rows.length === 0 ? false : rows);
                         } else if(type === "checkEmail") {
                             callback(rows.length === 0 ? false : true);
@@ -152,15 +160,18 @@ router.get('/home',function(req,res){
         res.redirect("/");
     }
 });
+var clients = [];
 router.get('/chat',function(req,res){
     if(req.session.key) {
         res.render("chat.html",{ email : req.session.key["user_name"]});
+
         io.on('connection', function(socket){
+
             console.log('a user connected');
-            socket.broadcast.emit('chat message','welcome chat here');
+            // socket.broadcast.emit('chat message','welcome chat here');
             socket.on('chat message', function(msg){
                 console.log('message: ' + msg);
-                io.emit('chat message', msg);
+                io.emit('chat message', {user_name:req.session.key["user_name"],message:msg,created_date:new Date().getTime()});
             });
             socket.on('disconnect', function(){
                 console.log('user disconnected');
@@ -169,6 +180,7 @@ router.get('/chat',function(req,res){
     } else {
         res.redirect("/");
     }
+
 });
 router.get("/fetchStatus",function(req,res){
     if(req.session.key) {
@@ -182,6 +194,7 @@ router.get("/fetchStatus",function(req,res){
     } else {
         res.json({"error" : true, "message" : "Please login first."});
     }
+
 });
 
 router.post("/addStatus",function(req,res){
@@ -197,7 +210,28 @@ router.post("/addStatus",function(req,res){
         res.json({"error" : true, "message" : "Please login first."});
     }
 });
-
+router.post("/addChat",function(req,res){
+    if(req.session.key) {
+        handle_database(req,"addChat",function(response){
+            if(response) {
+                res.json({"error" : false, "message" : "Error while adding Chat"});
+            }
+        });
+    } else {
+        res.json({"error" : true, "message" : "Please login first."});
+    }
+});
+router.get("/loadChat",function(req,res){
+    if(req.session.key) {
+        handle_database(req,"getChat",function(response){
+            if(response) {
+                res.json({"error" : false, "message" : response});
+            }
+        });
+    } else {
+        res.json({"error" : true, "message" : "Please login first."});
+    }
+});
 router.post("/register",function(req,res){
     handle_database(req,"checkEmail",function(response){
         if(response === null) {
