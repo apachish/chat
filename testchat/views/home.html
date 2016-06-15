@@ -2,42 +2,78 @@
 <head>
     <title>Home</title>
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <script src="js/jquery-1.11.3.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript">
-        $(document).ready(function(){
-            $.get("http://localhost:3000/fetchStatus",function(res){
-                $.each(res.message,function(index,value) {
-                    $("#showStatus").append('You have posted <br> <p>'+value.user_status+'</p><hr>');
+        $(document).ready(function() {
+            $.get("http://localhost:3000/fetchStatus", function (res) {
+                $.each(res.message, function (index, value) {
+                    $("#showStatus").append('You have posted <br> <p>' + value.user_status + '</p><hr>');
                 });
             });
-            $("#addNewStatus").click(function(e){
+            $.get("http://localhost:3000/loadRoom", function (res) {
+                $.each(res.message, function (index, value) {
+                    $("#Room").append('<li class="navbar-text navbar-right"  ><a class="joinRoom" href="/joinRoom" data-id="' + value.room_name + '">' + value.room_name + '</a></li>');
+                });
+            });
+            $("#addNewStatus").click(function (e) {
                 e.preventDefault();
-                if($("#statusbox").text !== "") {
+                if ($("#statusbox").text !== "") {
                     $.post("/addStatus",
-                            { status : $("#statusbox").val() },
-                            function(res){
-                                if(!res.error) {
+                            {status: $("#statusbox").val()},
+                            function (res) {
+                                if (!res.error) {
                                     alert(res.message);
                                 }
                             })
                 }
             });
+//            $(document).on('click', 'a.joinRoom', function (e) {
+//                e.preventDefault();
+//
+//            });
         });
+        function createRoom() {
+            // prompt for person's name before allowing to post
+            name = window.prompt("Insert name for Room?");
+            if(name !== "") {
+                $.post("/addRoom",
+                        { room_name : name },
+                        function(res){
+                            if(!res.error) {
+                                alert(res.message);
+                            }
+                        });
+                return name;
+            }
+            return false;
+        }
     </script>
 </head>
 <body>
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="navbar-header">
         <a class="navbar-brand" href="#">
-            <p>Redis session demo</p>
-        </a></div><div class="container">
-    <p class="navbar-text navbar-right">Hi you are login as <b><%= email %></b> (<a href="/logout/">Logout</a>)</p>
-    <p class="navbar-text navbar-right">Room Chat (<a href="/chat">Chat</a>)</p>
+            <p>Hi you are login as <b><%= email %></b> (<a href="/logout/">Logout</a>)</p>
+        </a>
+    </div>
+    <div class="container">
+    <!--<p class="navbar-text navbar-right">Hi you are login as <b><%= email %></b> (<a href="/logout/">Logout</a>)</p>-->
+    <!--<p class="navbar-text navbar-right">Room Chat (<a href="/chat">Chat</a>)-->
+    <!--<p class="navbar-text navbar-right">Create Room Chat (<a href="/chat">Chat</a>)</p></p>-->
+    <ul id="navigation">
+        <li class="navbar-text navbar-right" >Room Chat (Chat)
+            <!--<a href="/chat"></a>-->
+        <ul>
+            <li class="navbar-text navbar-right" id="Room" ><a  onclick="return createRoom();">Create Room Chat</a></li>
+        </ul>
+        </li>
+    </ul>
 </div>
 </nav>
 <div style="margin-top:100px;margin-left:50px;width:400px">
