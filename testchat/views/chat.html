@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <title>Chat</title>
     <!-- Latest compiled and minified CSS -->
@@ -10,6 +10,7 @@
     <script src="js/jquery-1.11.3.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="js/bootstrap.min.js"></script>
+
     <!-- javascript chat-->
     <script src="js/chat.js"></script>
     <style>
@@ -17,9 +18,8 @@
         body { font: 13px Helvetica, Arial; }
         form { background: #e8ecf4; padding: 3px; position: fixed; bottom: 0; width: 100%; }
         #m { border: 0; padding: 10px; width: 60%; height: 100px; margin-right: .5%; }
-        form button , #emoji{ width: 9%; background: #9FAFD1; border: none; padding: 10px; }
-        .imageLable { width: 9%; background:inherit; border: none; padding: 10px; }
-        #colorStyle,{ width: 9%;  border:thick; padding: 0px; }
+        /*form button { width: 9%; background: #9FAFD1; border: none; padding: 10px; }*/
+        #colorStyle{ width:20px;  border: hidden; padding: 0px; }
         #messages { list-style-type: none; margin: 100px; padding: 0; }
         #messages li { padding: 5px 10px; }
         #messages li:nth-child(odd) { background: #eee; }
@@ -67,6 +67,7 @@
             };
             reg = /data:image*/;
             if(reg.exec(msg)){
+                msg = msg.replace('data:image/jpeg;',window.location.host+'/upload/image/');
                 result = '<img class="image" src="'+msg+'" />';//todo:fix this in chrome it will cause a new request for the image
             }
             reg = /data:audio*/;
@@ -78,6 +79,7 @@
         }
 
         $(document).ready(function(){
+            var room = $('#room').val();
 
             function getName() {
                 // prompt for person's name before allowing to post
@@ -93,32 +95,61 @@
                 $( "#m" ).focus(); // focus cursor on the message input
                 return name;
             }
-            $('#sendImage').on('change', function() {
+            $('#fileupload').change(function(e) {
                 if (this.files.length != 0) {
                     var file = this.files[0],
                             reader = new FileReader(),
                             color = $('#colorStyle').val();
-                    if (!reader) {
-                        displayNewMsg('system', '!your browser doesn\'t support fileReader', 'red');
-                        this.value = '';
-                        return;
-                    };
+                    console.log(file.size);
                     reader.onload = function(e) {
-                        socket.emit('chat message '+room, e.target.result,getName());
-                        $.post("/addChat",
-                                {text: e.target.result,room:room},
-                                function (res) {
-                                    if (!res.error) {
-                                        alert(res.message);
-                                    }
+
+                        var dateString = formatAMPM(new Date());
+                        var DWid = name + "dwid" + Date.now();
+                        switch(file.type) {
+                            case 'image/jpeg':
+                            case 'image/png':
+                                var fd = new FormData();
+                                fd.append('file', file);
+                                fd.append('size', file.size);
+                                fd.append('path', file.path);
+                                fd.append('name',  file.name);
+                                fd.append('username', getName());
+                                fd.append('room', room);
+                                fd.append('type', file.type);
+
+
+
+                                $.ajax({
+                                    url: "/uploadImage", // Url to which the request is send
+                                    type: "POST",             // Type of request to be send, called as method
+                                    data: fd, // Data sent to server, a set of key/value pairs (i.e. form fields and values)
+                                    contentType: false,       // The content type used when sending data to the server.
+                                    cache: false,             // To unable request pages to be cached
+                                    processData:false,        // To send DOMDocument or non processed data file it is set to false
+                                    success: function (res) {
+                                            if (!res.error) {
+                                                alert(res.message);
+                                            }
+                                        }
                                 });
+                                break;
+                            case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                                case 'application/pdf':
+                                break;
+                            case 'audio/mp3':
+                            default:
+                                alert("type file undefined");
+                                    return false;
+                                break;
+                        }
+                        console.log(e.target.result);
+                        socket.emit('chat message '+room, e.target.result,getName());
 
                     };
                     reader.readAsDataURL(file);
                 };
                 return false;
             });
-            var room = $('#room').val();
 
             socket.on('connect', function() {
                 // Connected, let's sign-up for to receive messages for this room
@@ -128,7 +159,7 @@
                 // Connected, let's sign-up for to receive messages for this room
                 socket.emit('roomname', room,getName());
             });
-            $('form').submit(function(){
+            $('#form').submit(function(){
                 if(!Cookies.get('name') || Cookies.get('name').length < 1 || Cookies.get('name') === 'null') {
                     getName();
                     alert('please again login');
@@ -170,7 +201,16 @@
                 });
                 $('.contacts-list').html(html);  // append to list
             });
-
+            function formatAMPM(date) {
+                var hours = date.getHours();
+                var minutes = date.getMinutes();
+                var ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0'+minutes : minutes;
+                var strTime = hours + ':' + minutes + ' ' + ampm;
+                return strTime;
+            }
 
             socket.on('chat message '+room, function(msg){
                 console.log(">> " +msg);
@@ -260,20 +300,24 @@
 </div>
 </div>
     </section>
-<form action="">
+<form id="form" action="" enctype="multipart/form-data">
     <input id="m" autocomplete="off" />
 <input id="room" type="hidden"  value="<%= room %>"/>
 
-    <button>Send</button>
-    <input id="colorStyle" type="color" placeHolder='#000' title="font color" />
-    <input id="emoji" type="button" value="emoji" title="emoji" />
-    <label for="sendImage" class="imageLable">
-        <!--<input type="button" value="image"  />-->
-        <input id="sendImage" type="file" value="image"/>
-    </label>
+    <button class="btn btn-success">Send</button>
+    <input id="emoji" type="button" value="emoji" title="emoji" class="btn btn-success"/>
+
     <div id="emojiWrapper">
     </div>
+
+    <span class="btn btn-success fileinput-button" style="width: 100px;height: 30px;" title="select file">
+            <input id="fileupload" type="file" name='fileUploaded' style="opacity: 0;overflow: hidden;" >
+        Select files...
+    </span>
+    <input id="colorStyle" type="color" placeHolder='#000' title="font color" />
+
 </form>
+
 
 </body>
 </html>

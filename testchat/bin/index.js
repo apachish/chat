@@ -18,8 +18,13 @@ var app             =     express();
 var http            =     require('http').Server(app);
 var io              =     require('socket.io')(http);
 var router          =     express.Router();
+var fs = require('fs');						// fs module for handling file operations
+var formidable      =     require('formidable');		// file upload module
+
 var room = {};
 var clients = [];
+var files_array  = [];
+
 
 // Always use MySQL pooling.
 // Helpful for multiple connections.
@@ -37,6 +42,8 @@ app.set('views', path.join(__dirname,'../','views'));
 app.use('/css', express.static(path.join(__dirname,'../','css')));
 app.use('/js', express.static(path.join(__dirname,'../','js')));
 app.use('/img', express.static(path.join(__dirname,'../','img')));
+app.use('/upload', express.static(path.join(__dirname,'../','upload')));
+app.use('/bin/upload/image', express.static(path.join(__dirname,'/','/bin/upload/image')));
 app.engine('html', require('ejs').renderFile);
 
 // IMPORTANT
@@ -310,6 +317,131 @@ router.post("/register",function(req,res){
     });
 });
 
+// route for uploading images asynchronously
+router.post('/uploadImage',function (req, res){
+    var form = new formidable.IncomingForm();
+    //Formidable uploads to operating systems tmp dir by default
+    form.uploadDir = "./upload/image/";       //set upload directory
+    form.keepExtensions = true;     //keep file extension
+    form.parse(req, function(err, fields, files) {
+        res.writeHead(200, {'content-type': 'text/plain'});
+        res.write('received upload:\n\n');
+        console.dir("form.bytesReceived" + JSON.stringify(fields));
+        //TESTING
+        console.log("file size: "+JSON.stringify(files.file.size));
+        console.log("file path: "+JSON.stringify(files.file.path));
+        console.log("file name: "+JSON.stringify(files.file.name));
+        console.log("file type: "+JSON.stringify(files.file.type));
+        console.log("astModifiedDate: "+JSON.stringify(files.file.lastModifiedDate));
+
+        //Formidable changes the name of the uploaded file
+        //Rename the file to its original name
+        filename = req.session.key["user_name"] + "chat" + Date.now();
+        filetype = files.file.type;
+        type = filetype.split('/');
+        fs.rename(files.file.path, './upload/image/'+filename+'.'+type, function(err) {
+            if (err)
+                throw err;
+            console.log(fields.room);
+            req.body.room = fields.room;
+            req.body.text = 'data:'+filetype+';'+filename+'.png';
+            handle_database(req,"roomChat",function(response){
+                req.body.room=response.id;
+                handle_database(req,"addChat",function(response){
+                    if(response) {
+                        res.json({"error" : false, "message" : "Error while adding Chat"});
+                    }
+                });
+            });
+            console.log('renamed complete');
+        });
+        res.end();
+    });
+});
+
+// route for uploading audio asynchronously
+router.post('/v1/uploadAudio',function (req, res){
+    var userName, useravatar, hasfile, ismusicfile, isType, showMe, DWimgsrc, DWid, msgtime;
+    var imgdatetimenow = Date.now();
+    var form = new formidable.IncomingForm({
+        uploadDir: __dirname + '/public/app/upload/music',
+        keepExtensions: true
+    });
+
+
+    form.on('end', function() {
+        res.end();
+    });
+    form.parse(req,function(err,fields,files){
+        console.log("files : ",files);
+        console.log("fields : ", fields);
+        var data = {
+            username : fields.username,
+            userAvatar : fields.userAvatar,
+            repeatMsg : true,
+            hasFile : fields.hasFile,
+            isMusicFile : fields.isMusicFile,
+            istype : fields.istype,
+            showme : fields.showme,
+            dwimgsrc : fields.dwimgsrc,
+            dwid : fields.dwid,
+            serverfilename : baseName(files.file.path),
+            msgTime : fields.msgTime,
+            filename : files.file.name,
+            size : bytesToSize(files.file.size)
+        };
+        var audio_file = {
+            dwid : fields.dwid,
+            filename : files.file.name,
+            filetype : fields.istype,
+            serverfilename : baseName(files.file.path),
+            serverfilepath : files.file.path,
+            expirytime : imgdatetimenow + (3600000 * expiryTime)
+        };
+        files_array.push(audio_file);
+        ios.sockets.emit('new message music', data);
+    });
+});
+
+// route for uploading document asynchronously
+router.post('/v1/uploadPDF',function (req, res){
+    var imgdatetimenow = Date.now();
+    var form = new formidable.IncomingForm({
+        uploadDir: __dirname + '/public/app/upload/doc',
+        keepExtensions: true
+    });
+
+    form.on('end', function() {
+        res.end();
+    });
+    form.parse(req,function(err,fields,files){
+        var data = {
+            username : fields.username,
+            userAvatar : fields.userAvatar,
+            repeatMsg : true,
+            hasFile : fields.hasFile,
+            isPDFFile : fields.isPDFFile,
+            istype : fields.istype,
+            showme : fields.showme,
+            dwimgsrc : fields.dwimgsrc,
+            dwid : fields.dwid,
+            serverfilename : baseName(files.file.path),
+            msgTime : fields.msgTime,
+            filename : files.file.name,
+            size : bytesToSize(files.file.size)
+        };
+        var pdf_file = {
+            dwid : fields.dwid,
+            filename : files.file.name,
+            filetype : fields.istype,
+            serverfilename : baseName(files.file.path),
+            serverfilepath : files.file.path,
+            expirytime : imgdatetimenow + (3600000 * expiryTime)
+        };
+        files_array.push(pdf_file);
+        ios.sockets.emit('new message PDF', data);
+    });
+});
 router.get('/logout',function(req,res){
     if(req.session.key) {
         req.session.destroy(function(){
