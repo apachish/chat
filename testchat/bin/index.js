@@ -18,6 +18,8 @@ var app             =     express();
 var http            =     require('http').Server(app);
 var io              =     require('socket.io')(http);
 var router          =     express.Router();
+var room = {};
+var clients = [];
 
 // Always use MySQL pooling.
 // Helpful for multiple connections.
@@ -34,6 +36,7 @@ var pool    =   mysql.createPool({
 app.set('views', path.join(__dirname,'../','views'));
 app.use('/css', express.static(path.join(__dirname,'../','css')));
 app.use('/js', express.static(path.join(__dirname,'../','js')));
+app.use('/img', express.static(path.join(__dirname,'../','img')));
 app.engine('html', require('ejs').renderFile);
 
 // IMPORTANT
@@ -50,7 +53,8 @@ app.use(session({
 app.use(cookieParser("secretSign#143_!223"));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
-
+app.use(bodyParser.urlencoded({limit: '900mb'}));
+app.use(bodyParser.json({limit: '900mb'}));
 // This is an important function.
 // This function does the database handling task.
 // We also use async here for control flow.
@@ -70,6 +74,7 @@ function handle_database(req,type,callback) {
             },
             function(connection,callback) {
                 var SQLquery;
+                var SQLSelect;
                 switch(type) {
                     case "login" :
                         SQLquery = "SELECT * from user_login WHERE user_email='"+req.body.user_email+"' AND `user_password`='"+req.body.user_password+"'";
@@ -86,11 +91,14 @@ function handle_database(req,type,callback) {
                     case "getStatus" :
                         SQLquery = "SELECT * FROM user_status WHERE user_id="+req.session.key["user_id"];
                         break;
+                    case "roomChat" :
+                        SQLquery = "SELECT id FROM room WHERE room_name='"+req.body.room+"'";
+                        break;
                     case "addChat" :
-                        SQLquery = "INSERT into chat(user_id,message) VALUES ("+req.session.key["user_id"]+",'"+req.body.text+"')";
+                        SQLquery = "INSERT into chat(user_id,message,room) VALUES ("+req.session.key["user_id"]+",'"+req.body.text+"','"+req.body.room+"')";
                         break;
                     case "getChat" :
-                        SQLquery = "SELECT * FROM chat as c LEFT JOIN user_login as u on c.user_id = u.user_id ORDER BY created_date ASC";
+                        SQLquery = "SELECT * FROM chat as c LEFT JOIN user_login as u on c.user_id = u.user_id WHERE  room ='"+req.body.room+"' ORDER BY created_date ASC";
                         break;
                     case "addRoom" :
                         SQLquery = "INSERT into room(room_name) VALUES ('"+req.body.room_name+"')";
@@ -117,7 +125,10 @@ function handle_database(req,type,callback) {
                             callback(rows.length === 0 ? false : rows);
                         }else if(type === "checkEmail") {
                             callback(rows.length === 0 ? false : true);
-                        } else {
+                        } else if(type === "roomChat") {
+                            callback(rows.length === 0 ? false : rows[0]);
+                        }
+                        else {
                             callback(false);
                         }
                     } else {
@@ -221,11 +232,15 @@ router.post("/addStatus",function(req,res){
 });
 router.post("/addChat",function(req,res){
     if(req.session.key) {
-        handle_database(req,"addChat",function(response){
-            if(response) {
-                res.json({"error" : false, "message" : "Error while adding Chat"});
-            }
+        handle_database(req,"roomChat",function(response){
+            req.body.room=response.id;
+            handle_database(req,"addChat",function(response){
+                if(response) {
+                    res.json({"error" : false, "message" : "Error while adding Chat"});
+                }
+            });
         });
+
     } else {
         res.json({"error" : true, "message" : "Please login first."});
     }
@@ -245,29 +260,27 @@ router.post("/addRoom",function(req,res){
 });
 router.get("/loadChat",function(req,res){
     if(req.session.key) {
-        handle_database(req,"getChat",function(response){
-            if(response) {
-                res.json({"error" : false, "message" : response});
-            }
+        req.body.room = req.query['room'];
+        handle_database(req,"roomChat",function(response){
+            req.body.room=response.id;
+
+            handle_database(req,"getChat",function(response){
+                if(response) {
+                    res.json({"error" : false, "message" : response});
+                }
+            });
         });
     } else {
         res.json({"error" : true, "message" : "Please login first."});
     }
 });
-var io = io.of('/testroom');
 
 router.get("/joinRoom",function(req,res){
     if(req.session.key) {
-        io.sockets.on('connection', function(socket) {
-            // once a client has connected, we expect to get a ping from them saying what room they want to join
-            socket.on('room', function(req) {
-                socket.join(req.body.room_name);
-            });
-        });
-        res.render("chat.html",{ email : req.session.key["user_name"]});
+        res.render("chat.html",{ email : req.session.key["user_name"],room : req.query["room"]});
 
     } else {
-        res.json({"error" : true, "message" : "Please login first."});
+        res.redirect('/');
     }
 });
 router.get("/loadRoom",function(req,res){
@@ -308,40 +321,63 @@ router.get('/logout',function(req,res){
 });
 
 app.use('/',router);
+
 io.on('connection', function(socket){
-    console.log(socket);
-    room = "testroom";
-    console.log('a user connected');
-    // socket.broadcast.emit('chat message','welcome chat here');
-    socket.in(room).on('io:name', function (name) {
-        io.emit('io:name', name);
+    // console.log(io.sockets);
+    socket.on('room', function(room,name) {
+        if(name){
+            if(room in clients){
+                clients[room]=clients[room].join(" , ");
+                if(clients[room].indexOf(name) == -1){
+                    clients[room]+= name+" , ";
+                }
+            }else{
+                clients[room]= name+" , ";
+            }
+            clients[room] =clients[room].split(" , ");
+
+            clients.push(clients[room]);
+        }
+
 
     });
-    socket.in(room).on('chat message', function(msg,name){
-        console.log('message: ' + msg + name);
-        io.emit('chat message', {user_name:name,message:msg,created_date:new Date().getTime()});
-    });
-    socket.in(room).on('disconnect', function(){
-        console.log('user disconnected');
-        socket.leave(room);
+    // sending online members list
+
+    //room = "testroom";
+    socket.on('roomname', function(room,name) {
+
+        console.log('a user  join ' + room);
+        socket.on("online-members", function(data){
+            console.log(clients[room]);
+            console.log(room);
+            io.emit(room, clients[room]);
+            
+        });
+        // socket.emit('listuser',clients);   // send jobs
+        // socket.broadcast.emit('chat message','welcome chat here');
+        socket.in(room).on('io:name', function (name) {
+            io.emit('io:name', name);
+        });
+        socket.on('chat message '+room, function(msg,name){
+            console.log('message: ' + msg + name +' room '+ room);
+            io.emit('chat message '+room , {user_name:name,message:msg,created_date:new Date().getTime()});
+            console.log(clients[room]);
+        });
+        socket.on('disconnect', function(){
+            console.log('user leave ' + room);
+            socket.leave(room);
+            console.log(clients[room].indexOf(name));
+            clients[room].splice(clients[room].indexOf(name), 1);
+            console.log(clients[room]);
+            io.emit(room,clients[room]);   // send jobs
+
+        });
 
     });
+
+
 });
-// sending online members list
-io.on('get-online-members', function(data){
-    var online_member = [];
-    
-    i = Object.keys(nickname);
-    for(var j=0;j<i.length;j++ )
-    {
-        socket_id = i[j];
-        socket_data = nickname[socket_id];
-        temp1 = {"username": socket_data.username, "userAvatar":socket_data.userAvatar};
-        online_member.push(temp1);
-    }
-    console.log(online_member);
-    io.socket.emit('online-members', online_member);
-});
+
 http.listen(3000,function(){
     console.log("I am running at 3000");
 });

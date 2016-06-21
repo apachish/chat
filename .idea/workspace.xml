@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b1978e53-4b11-4a62-a079-96238fb3ae55" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/awesome" afterPath="$PROJECT_DIR$/awesome" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nodejs-socket-io-chat" afterPath="$PROJECT_DIR$/nodejs-socket-io-chat" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testchat/hapi-socketio-redis-chat-example" afterPath="$PROJECT_DIR$/testchat/hapi-socketio-redis-chat-example" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="nodechat.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -74,7 +72,7 @@
         <entry file="file://$PROJECT_DIR$/testchat/views/home.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="585">
-              <caret line="39" column="65" selection-start-line="39" selection-start-column="65" selection-end-line="39" selection-end-column="65" />
+              <caret line="75" column="9" selection-start-line="75" selection-start-column="9" selection-end-line="75" selection-end-column="9" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -86,8 +84,8 @@
       <file leaf-file-name="chat.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/testchat/views/chat.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
-              <caret line="36" column="14" selection-start-line="36" selection-start-column="14" selection-end-line="36" selection-end-column="14" />
+            <state relative-caret-position="1905">
+              <caret line="127" column="6" selection-start-line="127" selection-start-column="6" selection-end-line="127" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -117,8 +115,10 @@
         <entry file="file://$PROJECT_DIR$/testchat/bin/index.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="481">
-              <caret line="264" column="3" selection-start-line="264" selection-start-column="3" selection-end-line="264" selection-end-column="3" />
-              <folding />
+              <caret line="346" column="3" selection-start-line="346" selection-start-column="3" selection-end-line="346" selection-end-column="3" />
+              <folding>
+                <marker date="1465992590549" expanded="true" signature="43:78" placeholder="/**Loading all dependencies. ...*/" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -395,7 +395,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3420">
           <caret line="230" column="3" selection-start-line="230" selection-start-column="3" selection-end-line="230" selection-end-column="3" />
-          <folding />
+          <folding>
+            <marker date="1465992590549" expanded="true" signature="43:78" placeholder="/**Loading all dependencies. ...*/" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -670,7 +672,7 @@
     <entry file="file://$PROJECT_DIR$/testchat/views/home.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="585">
-          <caret line="39" column="65" selection-start-line="39" selection-start-column="65" selection-end-line="39" selection-end-column="65" />
+          <caret line="75" column="9" selection-start-line="75" selection-start-column="9" selection-end-line="75" selection-end-column="9" />
           <folding>
             <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -695,8 +697,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/testchat/views/chat.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="36" column="14" selection-start-line="36" selection-start-column="14" selection-end-line="36" selection-end-column="14" />
+        <state relative-caret-position="1905">
+          <caret line="127" column="6" selection-start-line="127" selection-start-column="6" selection-end-line="127" selection-end-column="6" />
           <folding />
         </state>
       </provider>
@@ -728,8 +730,10 @@
     <entry file="file://$PROJECT_DIR$/testchat/bin/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="481">
-          <caret line="264" column="3" selection-start-line="264" selection-start-column="3" selection-end-line="264" selection-end-column="3" />
-          <folding />
+          <caret line="346" column="3" selection-start-line="346" selection-start-column="3" selection-end-line="346" selection-end-column="3" />
+          <folding>
+            <marker date="1465992590549" expanded="true" signature="43:78" placeholder="/**Loading all dependencies. ...*/" />
+          </folding>
         </state>
       </provider>
     </entry>

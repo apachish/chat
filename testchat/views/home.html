@@ -18,7 +18,7 @@
             });
             $.get("http://localhost:3000/loadRoom", function (res) {
                 $.each(res.message, function (index, value) {
-                    $("#Room").append('<li class="navbar-text navbar-right"  ><a class="joinRoom" href="/joinRoom" data-id="' + value.room_name + '">' + value.room_name + '</a></li>');
+                    $("#Room").append('<li class="navbar-text navbar-right"  ><a class="joinRoom" href="/joinRoom?room='+value.room_name+'" data-id="' + value.room_name + '">' + value.room_name + '</a></li>');
                 });
             });
             $("#addNewStatus").click(function (e) {
@@ -41,7 +41,10 @@
         function createRoom() {
             // prompt for person's name before allowing to post
             name = window.prompt("Insert name for Room?");
-            if(name !== "") {
+            if(name == '') {
+                alert("please insert character in input");
+            }
+            if(name !== '') {
                 $.post("/addRoom",
                         { room_name : name },
                         function(res){

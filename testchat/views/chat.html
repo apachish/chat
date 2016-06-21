@@ -4,34 +4,81 @@
     <title>Chat</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <!-- Optional theme -->
     <link rel="stylesheet" href="css/bootstrap-theme.min.css">
     <script src="js/jquery-1.11.3.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="js/bootstrap.min.js"></script>
+    <!-- javascript chat-->
+    <script src="js/chat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font: 13px Helvetica, Arial; }
-        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-        form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-        #messages { list-style-type: none; margin: 64px; padding: 0; }
+        form { background: #e8ecf4; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+        #m { border: 0; padding: 10px; width: 60%; height: 100px; margin-right: .5%; }
+        form button , #emoji{ width: 9%; background: #9FAFD1; border: none; padding: 10px; }
+        .imageLable { width: 9%; background:inherit; border: none; padding: 10px; }
+        #colorStyle,{ width: 9%;  border:thick; padding: 0px; }
+        #messages { list-style-type: none; margin: 100px; padding: 0; }
         #messages li { padding: 5px 10px; }
         #messages li:nth-child(odd) { background: #eee; }
+        #emojiWrapper {
+            display: none;
+            width: 500px;
+            bottom: 105px;
+            position: absolute;
+            background-color: #aaa;
+            box-shadow: 0 0 10px #555;
+        }
+        #emojiWrapper img {
+            margin: 2px;
+            padding: 2px;
+            width: 25px;
+            height: 25px;
+        }
+        #emojiWrapper img:hover {
+            background-color: blue;
+        }
+        .emoji{
+            display: inline;
+        }
+
+
+
     </style>
     <script src="js/socket.io-1.2.0.js"></script>
     <script src="js/cookies.min.js"></script>
 
         <script>
-        var socket = io('/testroom');
+        var socket = io('/');
+        function showEmoji(msg) {
+            var match, result = msg,
+                    reg = /\[emoji:\d+\]/g,
+                    emojiIndex,
+                    totalEmojiNum = document.getElementById('emojiWrapper').children.length;
+            while (match = reg.exec(msg)) {
+                emojiIndex = match[0].slice(7, -1);
+                if (emojiIndex > totalEmojiNum) {
+                    result = result.replace(match[0], '[X]');
+                } else {
+                    result = result.replace(match[0], '<img class="emoji" src="img/emoji/' + emojiIndex + '.gif" />');//todo:fix this in chrome it will cause a new request for the image
+                };
+            };
+            reg = /data:image*/;
+            if(reg.exec(msg)){
+                result = '<img class="image" src="'+msg+'" />';//todo:fix this in chrome it will cause a new request for the image
+            }
+            reg = /data:audio*/;
+            if(reg.exec(msg)){
+
+                result ='<audio controls><source src="'+msg+'" type="audio/ogg"><source src="'+msg+'" type="audio/mpeg"></audio>';
+            }
+            return result;
+        }
 
         $(document).ready(function(){
 
-//        $.get("http://localhost:3000/loadChat",function(res){
-//            $.each(res.message,function(index,value) {
-//                $("#messages").append($('<li>').text(value.user_name+':'+value.message));
-//            });
-//        });
             function getName() {
                 // prompt for person's name before allowing to post
 
@@ -46,15 +93,51 @@
                 $( "#m" ).focus(); // focus cursor on the message input
                 return name;
             }
+            $('#sendImage').on('change', function() {
+                if (this.files.length != 0) {
+                    var file = this.files[0],
+                            reader = new FileReader(),
+                            color = $('#colorStyle').val();
+                    if (!reader) {
+                        displayNewMsg('system', '!your browser doesn\'t support fileReader', 'red');
+                        this.value = '';
+                        return;
+                    };
+                    reader.onload = function(e) {
+                        socket.emit('chat message '+room, e.target.result,getName());
+                        $.post("/addChat",
+                                {text: e.target.result,room:room},
+                                function (res) {
+                                    if (!res.error) {
+                                        alert(res.message);
+                                    }
+                                });
+
+                    };
+                    reader.readAsDataURL(file);
+                };
+                return false;
+            });
+            var room = $('#room').val();
+
+            socket.on('connect', function() {
+                // Connected, let's sign-up for to receive messages for this room
+                socket.emit('room', room,getName());
+            });
+            socket.on('connect', function() {
+                // Connected, let's sign-up for to receive messages for this room
+                socket.emit('roomname', room,getName());
+            });
             $('form').submit(function(){
                 if(!Cookies.get('name') || Cookies.get('name').length < 1 || Cookies.get('name') === 'null') {
                     getName();
+                    alert('please again login');
                     return false;
                 } else {
-                    if ($("#m").text !== "") {
-                        socket.emit('chat message', $('#m').val() ,getName());
+                    if ($("#m").val() !== "") {
+                        socket.emit('chat message '+room, $('#m').val() ,getName());
                         $.post("/addChat",
-                                {text: $("#m").val()},
+                                {text: $("#m").val(),room:room},
                                 function (res) {
                                     if (!res.error) {
                                         alert(res.message);
@@ -63,13 +146,33 @@
                         $('#m').val('');
                         return false;
 
+                    }else{
+                        alert("please insert text in textbox");
+                        return false;
                     }
                 }
             });
-            socket.emit('online-members', function(data){
+            socket.emit("online-members",function(data){
+            });
+            socket.on(room, function(online){
+                console.log(">> " +online);
+                var html = '';
+                $('.contacts-list').html(html);
+                $.each(online,function(index,value) {
+                    if(value){
+                        html += "<li ng-repeat='user in users'>";
+                        html += "<a href>";
+                        html += "<img class='contacts-list-img' src='img/Avatar1.jpg'/>";
+                        html += "<div class='contacts-list-info'>";
+                        html += "<span class='ol-memeber-name' style='line-height:2.6; padding:5px; font-weight : 600; color : #333;'>"+value+"</span>";
+                        html += "</div><!-- /.contacts-list-info --></a></li>";
+                    }
+                });
+                $('.contacts-list').html(html);  // append to list
             });
 
-            socket.on('chat message', function(msg){
+
+            socket.on('chat message '+room, function(msg){
                 console.log(">> " +msg);
                 renderMessage(msg);
                 scrollToBottom();
@@ -96,14 +199,20 @@
                 var html = "<li class='row'>";
                 html += "<small class='time'>" + getTime(value.created_date) + " </small>";
                 html += "<span class='name'>" + value.user_name + ": </span>";
-                html += "<span class='msg'>" + value.message + "</span>";
+                html += "<span class='msg'>" + showEmoji(value.message); + "</span>";
                 html += "</li>";
                 $('#messages').append(html);  // append to list
                 return;
             }
+            function renderOnline(value) {
+                console.log(value);
+
+                return;
+            }
             getName();
             function loadMessages() {
-                $.get('http://localhost:3000/loadChat', function(res){
+                $.get('http://localhost:3000/loadChat?room='+room,function(res){
+
                     $.each(res.message,function(index,value) {
                         renderMessage(value);
                     });
@@ -111,6 +220,7 @@
                 })
             }
             loadMessages();
+
         });
 
 
@@ -120,19 +230,55 @@
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="navbar-header">
         <a class="navbar-brand" href="#">
-            <p>Redis session demo</p>
+            <p>Rome <%= room %></p>
         </a></div><div class="container">
     <p class="navbar-text navbar-right">Hi you are login as <b><%= email %></b> (<a href="/logout/">Logout</a>)</p>
     <p class="navbar-text navbar-right">Home (<a href="/home">Home</a>)</p>
 </div>
 </nav>
-<ul id="messages"></ul>
+<section class="content">
+
+<<div class="row">
+    <div class="col-sm-9">
+
+    <ul id="messages"></ul>
+        </div>
+<div class="col-sm-3 toggle-contact-list">
+    <div class="box box-warning direct-chat direct-chat-warning">
+        <div class="box-header with-border">
+            <h3 class="box-title">Online Members</h3>
+        </div><!-- /.box-header -->
+        <div class="box-body">
+            <!-- Contacts are loaded here -->
+            <div class="direct-chat-messages ol-members">
+                <ul class='contacts-list'>
+                    <!-- End Contact Item -->
+                </ul><!-- /.contatcts-list -->
+            </div><!--/.direct-chat-messages-->
+        </div><!-- /.box-body -->
+    </div><!-- /.box -->
+</div>
+</div>
+    </section>
 <form action="">
-    <input id="m" autocomplete="off" /><button>Send</button>
+    <input id="m" autocomplete="off" />
+<input id="room" type="hidden"  value="<%= room %>"/>
+
+    <button>Send</button>
+    <input id="colorStyle" type="color" placeHolder='#000' title="font color" />
+    <input id="emoji" type="button" value="emoji" title="emoji" />
+    <label for="sendImage" class="imageLable">
+        <!--<input type="button" value="image"  />-->
+        <input id="sendImage" type="file" value="image"/>
+    </label>
+    <div id="emojiWrapper">
+    </div>
 </form>
 
 </body>
 </html>
+
+
 
 
 
