@@ -12,6 +12,7 @@ window.onload = function() {
 var HiChat = function() {
     this.socket = null;
 };
+console.log(getName());
 HiChat.prototype = {
     init: function() {
         var that = this;
@@ -33,7 +34,18 @@ HiChat.prototype = {
             if (target.nodeName.toLowerCase() == 'img') {
                 var messageInput = document.getElementById('m');
                 messageInput.focus();
-                messageInput.value = messageInput.value + '[emoji:' + target.title + ']';
+                 var message = messageInput.value + '[emoji:' + target.title + ']';
+                var room =  document.getElementById('room').value;
+                socket.emit('chat message '+room, message ,getName(), document.getElementById('colorStyle').value);
+                $.post("/addChat",
+                    {text: message,room:room,font_color : $("#colorStyle").val()},
+                    function (res) {
+                        if (!res.error) {
+                            alert(res.message);
+                        }
+                    });
+                $('#m').val('');
+                return false;
             };
         }, false);
     },

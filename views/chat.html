@@ -11,10 +11,11 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="js/bootstrap.min.js"></script>
     <!-- javascript chat-->
-    <script src="js/chat.js"></script>
     <script src="js/socket.io-1.2.0.js"></script>
     <script src="js/cookies.min.js"></script>
     <script src="js/chatroom.js"></script>
+    <script src="js/chat.js"></script>
+
 </head>
 <body>
 <nav class="navbar navbar-default navbar-fixed-top">
@@ -61,6 +62,7 @@
         <input id="m"  autocomplete="off" />
         <input id="colorStyle" type="color" placeHolder='#000' title="font color" />
         <input id="room" type="hidden"  value="<%= room %>"/>
+        <input id="emojii" type="hidden"  value=""/>
         <button class="btn btn-success">Send</button>
         <input id="emoji" type="button" value="emoji" title="emoji" class="btn btn-success"/>
         <div id="emojiWrapper">

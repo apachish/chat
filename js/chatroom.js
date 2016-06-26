@@ -39,21 +39,22 @@ function showEmoji(msg) {
     }
     return result;
 }
+function getName() {
+    // prompt for person's name before allowing to post
+    var name = Cookies.get('name');
+    if(!name || name === 'null') {
+//                    name = window.prompt("What is your name/handle?");
+        $.get('http://localhost:3000/getName', function(res){
+            Cookies.set('name', res.name);
+        })
+    }
+    socket.emit('io:name', name);
+    $( "#m" ).focus(); // focus cursor on the message input
+    return name;
+}
 $(document).ready(function(){
     var room = $('#room').val();
-    function getName() {
-        // prompt for person's name before allowing to post
-        var name = Cookies.get('name');
-        if(!name || name === 'null') {
-//                    name = window.prompt("What is your name/handle?");
-            $.get('http://localhost:3000/getName', function(res){
-                Cookies.set('name', res.name);
-            })
-        }
-        socket.emit('io:name', name);
-        $( "#m" ).focus(); // focus cursor on the message input
-        return name;
-    }
+
     $('#fileupload').change(function(e) {
         if (this.files.length != 0) {
             var file = this.files[0],

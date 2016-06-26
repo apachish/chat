@@ -30,7 +30,7 @@ var files_array  = [];
 // Helpful for multiple connections.
 
 var pool    =   mysql.createPool({
-    connectionLimit : 100,
+    connectionLimit : 10000,
     host     : 'localhost',
     user     : 'root',
     password : 'root',
