@@ -1,0 +1,86 @@
+<html>
+    <head>
+
+        <title>Chat :-D</title>
+        <link href="css/icon.css" rel="stylesheet">
+        <link href="css/materialize.min.css" rel="stylesheet">
+        <link href="css/custom.css" rel="stylesheet">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body>
+        <header class="menu-down">
+            <nav class="top-nav">
+                <div class="notifications">
+                    <!-- start first header -->
+                    
+                    
+                    <!-- end first header -->
+                </div>
+                    <div class="container header-data">
+                        <!-- start second header -->
+                        <a class="button-collapse top-nav full hide-on-large-only" data-activates="nav-mobile" href="#">
+                            <i class="material-icons mob-menu">menu</i>
+                        </a>
+                        <i class="material-icons second-menu">reorder</i>
+                        <div class="nav-wrapper"><a class="page-title"><img src="img/logo.png" class="logo-img"></a></div>
+                      <!-- end second header -->
+                    </div>
+      </nav>
+        
+       
+        <!-- start menuuuuu -->
+        <!-- end menuuuuu -->
+        </header>
+        
+        <main class="menu-down"><div class="container">
+             <div class="row">
+                 <div class="s12">
+                     <!-- start main content -->
+                     <div class="row">
+                         <input type="hidden" value="<%= code %>" id="check_code">
+                         <div class="form-group get_telephon">
+                             <input type="text" id="telephon" placeholder="Telephon" class="form-control"><br>
+                             <input type="button" id="login-submit" value="Log In" class="btn btn-primary">
+                         </div>
+                         <div class="form-group get_code" style="display:none">
+                             <p>we've sent an SMS with an activation code to your phone  <span id="tel">  </span></p>
+                             <input type="text" id="code" placeholder="Code" class="form-control"><br>
+                             <input type="button" id="Code-submit" value="Start" class="btn btn-primary">
+                         </div>
+                     </div>
+                     <!-- end main-content -->
+                 </div>
+            </div>
+  </div>
+
+
+    </main>
+        
+        
+        <footer class="page-footer menu-down">
+      <div class="container">
+        <div class="row">
+            <!-- start first footer -->
+            
+            
+            <!-- end first footer -->  
+        </div>
+      </div>
+      <div class="footer-copyright">
+        <div class="container">
+            
+            <!-- start second foter -->
+            &copy; 2014-2016 Materialize, All rights reserved.
+            <a href="https://github.com/Dogfalo/materialize/blob/master/LICENSE" class="grey-text text-lighten-4 right">MIT License</a>
+        <!-- end second footer -->
+        </div>
+      </div>
+    </footer>
+        
+        <script src="js/jquery.min.js"></script>
+        <script src="js/materialize.min.js"></script>
+        <script src="js/socket.io-1.2.0.js"></script>
+        <script src="js/custom.js"></script>
+    </body>
+</html>
