@@ -34,8 +34,8 @@ HiChat.prototype = {
                 var messageInput = document.getElementById('m');
                 messageInput.focus();
                  var message = messageInput.value + '[emoji:' + target.title + ']';
-                var room =  document.getElementById('room').value;
-                socket.emit('chat message '+room, message ,getName(), document.getElementById('colorStyle').value);
+                var room =  document.getElementById('roomnow').value;
+                socket.emit('chat message '+room, message ,$("#user_online").val(), document.getElementById('colorStyle').value);
                 $.post("/addChat",
                     {text: message,room:room,font_color : $("#colorStyle").val()},
                     function (res) {

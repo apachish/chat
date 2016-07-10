@@ -1,0 +1,77 @@
+[{
+  "firstName": "John",
+  "lastName": "Smith",
+  "address": {
+    "streetAddress": "21 2nd Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10021"
+  },
+  "phoneNumber": [{
+    "type": "home",
+    "number": "212 555-1234"
+  }, {
+    "type": "fax",
+    "number": "646 555-4567"
+  }, {
+    "type": "mobile",
+    "number": "93728542411"
+  }]
+}, {
+  "firstName": "mark",
+  "lastName": "Smith",
+  "address": {
+    "streetAddress": "21 2nd Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10021"
+  },
+  "phoneNumber": [{
+    "type": "home",
+    "number": "212 555-1234"
+  }, {
+    "type": "fax",
+    "number": "646 555-4567"
+  }, {
+    "type": "mobile",
+    "number": "93728542416"
+  }]
+}, {
+  "firstName": "erik",
+  "lastName": "Smith",
+  "address": {
+    "streetAddress": "21 2nd Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10021"
+  },
+  "phoneNumber": [{
+    "type": "home",
+    "number": "212 555-1234"
+  }, {
+    "type": "fax",
+    "number": "646 555-4567"
+  }, {
+    "type": "mobile",
+    "number": "93728542422"
+  }]
+},{
+  "firstName": "mark",
+  "lastName": "Smith",
+  "address": {
+    "streetAddress": "21 2nd Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10021"
+  },
+  "phoneNumber": [{
+    "type": "home",
+    "number": "212 555-1234"
+  }, {
+    "type": "fax",
+    "number": "646 555-4567"
+  }, {
+    "type": "mobile",
+    "number": "93728542422"
+  }]
+}]

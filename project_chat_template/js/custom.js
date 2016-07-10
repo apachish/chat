@@ -106,6 +106,8 @@ $(document).on("ready",function(){
                 function(res){
                     if(!res.error) {
                         $("#Room").append('<li class="navbar-text navbar-right"  ><a class="joinRoom"  data-id="' + name + '">' + name + '</a></li>');
+                        $("#nav-mobile").css("margin-left","240px");
+
                     }
                 });
             return name;
@@ -116,6 +118,9 @@ $(document).on("ready",function(){
 
     $(document).on('click','.joinRoom',function(){
         var joinroom = $(this).attr('data-id');
+        $("#roomnow").val(joinroom);
+        $('.messages-list').html("");
+
         $.ajax({
             url:  window.location.origin+"/joinRoom?room="+joinroom,
             type: "GET",             // Type of request to be send, called as method
@@ -125,22 +130,41 @@ $(document).on("ready",function(){
             processData:false,        // To send DOMDocument or non processed data file it is set to false
             success: function (res) {
                 if (!res.error) {
-                    $('.joinRoom').removeClass('checked');
-                    $(this).addClass('checked');
-                    $.get(window.location.origin+'/loadChat?room='+joinroom,function(res){
+                    // $('.joinRoom').removeClass('checked');
+                    // $('.joinRoom').find("a").attr("data-id",joinroom).addClass('checked');
                         $.each(res.message,function(index,value) {
-                            renderMessage(value);
-                        });
+                            console.log(value);
+                            renderMessage(index,value);
                         scrollToBottom();
                     })
+                }else{
+                    console.log('aaaa');
                 }
             }
         });
     });
+    $(document).on('click','#contacts',function(){
+        $.get(window.location.origin+"/addConntact", function (res) {
+            console.log(res);
+            return false;
+        });
+        $("#nav-mobile").css("margin-left","240px");
+
+    });
 
     var room;
     var name = $("#user_online").val();
-
+    $.get(window.location.origin+"/loadContact", function (res) {
+        $.each(res.message, function (index, value) {
+            value = JSON.parse(value);console.log(value.lastName);
+            $.each(value.phoneNumber,function (key ,tel) {
+                if(tel.type == 'mobile'){
+                    telephon = tel.number;
+                }
+            });
+            $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom"  data-id="' + telephon + '">' + value.lastName+' '+value.firstName + '</a></li>');
+        });
+    });
     $.get(window.location.origin+"/loadRoom", function (res) {
         $.each(res.message, function (index, value) {
             if(!index){
@@ -159,6 +183,8 @@ $(document).on("ready",function(){
             // Connected, let's sign-up for to receive messages for this room
             socket.emit('roomname', room,$("#user_online").val());
         });
+
+
         socket.on(room, function(online){
             console.log(">> " +online);
             var html = '';
@@ -190,7 +216,6 @@ $(document).on("ready",function(){
             var file = this.files[0],
                 reader = new FileReader(),
                 color = $('#colorStyle').val();
-            console.log(file.size+file.type);
             reader.onload = function(e) {
                 var fd = new FormData();
                 fd.append('file', file);
@@ -212,7 +237,6 @@ $(document).on("ready",function(){
                             processData:false,        // To send DOMDocument or non processed data file it is set to false
                             success: function (res) {
                                 if (!res.error) {
-                                    console.log('Done upLoad');
                                     $('#fileupload').val('');
                                 }
                             }
@@ -229,7 +253,6 @@ $(document).on("ready",function(){
                             processData:false,        // To send DOMDocument or non processed data file it is set to false
                             success: function (res) {
                                 if (!res.error) {
-                                    console.log(res.message);
                                     $('#fileupload').val('');
                                 }
                             }
@@ -245,7 +268,6 @@ $(document).on("ready",function(){
                             processData:false,        // To send DOMDocument or non processed data file it is set to false
                             success: function (res) {
                                 if (!res.error) {
-                                    console.log(res.message);
                                     $('#fileupload').val('');
                                 }
                             }
@@ -256,8 +278,11 @@ $(document).on("ready",function(){
                         return false;
                         break;
                 }
-                console.log(e.target.result);
                 socket.emit('chat message '+room, e.target.result,name);
+                socket.on('chat message '+room, function(msg){
+                    renderMessage(msg);
+                    scrollToBottom();
+                });
 
             };
             reader.readAsDataURL(file);
@@ -266,13 +291,17 @@ $(document).on("ready",function(){
     });
 
     $('#form').submit(function(){
+        room = $("#roomnow").val();
             if ($("#m").val() !== "") {
+                socket.emit('chat message '+room, $('#m').val() ,name,$("#colorStyle").val());
+
                 $.post("/addChat",
                     {text: $("#m").val(),room:room,font_color : $("#colorStyle").val()},
                     function (res) {
                         if (!res.error) {
-                            socket.emit('chat message '+room, $('#m').val() ,name,$("#colorStyle").val());
+                            return false;
                         }
+                        return false;
                     });
                 $('#m').val('');
                 return false;
@@ -283,7 +312,14 @@ $(document).on("ready",function(){
             }
     });
 
-
+    room = $("#roomnow").val();
+    console.log(room);
+    socket.on('chat message '+room, function(msg){
+        console.log('send'+room);
+        console.log('send'+msg);
+        renderMessage('send',msg);
+        scrollToBottom();
+    });
     function formatAMPM(date) {
         var hours = date.getHours();
         var minutes = date.getMinutes();
@@ -300,8 +336,9 @@ $(document).on("ready",function(){
     //      scrollToBottom();
     //  });
     function scrollToBottom () {
-        console.log($('.content').height());
-        $(window).scrollTop($('.content').height());
+        console.log($('.messages-wrapper').height());
+        $(window).scrollTop($('.messages-wrapper').height());
+        $('.messages-wrapper').scrollTop($('.messages-wrapper')[0].scrollHeight);
     }
     function leadZero(number) {
         return (number < 10) ? '0'+number : number;
@@ -319,9 +356,12 @@ $(document).on("ready",function(){
      * nothing fancy
      */
     function renderMessage(index,value) {
-        value = JSON.parse(value);
+        if(index != 'send'){
+            value = JSON.parse(value);
+        }
+        var html ='';
         if(name == value.name){
-            var html='<li class="messege-row">';
+            html='<li class="messege-row">';
             html +='<ul class="message-list sent-message">';
             html +='<li class="message-single message-first">';
             html +='<div class="avatar-container">';
@@ -331,14 +371,14 @@ $(document).on("ready",function(){
             html +='<div class="message-text">';
             html += "<small class='time'>" + getTime(value.created_date) + " </small>";
             html += "<span class='name'>" + value.name + ": </span>";
-            html += "<span class='msg' style='color:"+value.font_color+"'>" + showEmoji(value.text); + "</span>";
+            html += "<span class='msg' style='color:"+value.color+"'>" + showEmoji(value.text); + "</span>";
             html +='</div>';
             html +='</div>';
             html +='</li>';
             html +='</ul>';
             html +='</li>';
         }else{
-            var html='<li class="messege-row">';
+            html='<li class="messege-row">';
             html +='<ul class="message-list received-message">';
             html +='<li class="message-single message-first">';
             html +='<div class="avatar-container">';
