@@ -15,6 +15,7 @@
             <!-- start first header -->
             <input type="hidden" id="user_online" value="<%= user %>">
             <input type="hidden" id="room_list" value="<%= room %>">
+
             <!-- end first header -->
         </div>
         <div class="container header-data">
@@ -38,8 +39,9 @@
             <object data="res/materialize.svg" type="image/svg+xml" id="front-page-logo">Your browser does not support SVG</object></a></li> -->
 
         <li class="bold"><a class="waves-effect waves-teal" id="new-group">New Group</a></li>
-        <li class="bold active"><a class="waves-effect waves-teal" id="contacts" >Contact</a></li>
-        <li class="bold "><a class="waves-effect waves-teal" href="http://materializecss.com/mobile.html">Profile</a></li>
+        <li class="bold"><a class="waves-effect waves-teal" id="chat-list">Chat List</a></li>
+        <li class="bold "><a class="waves-effect waves-teal" id="contacts" >Contact</a></li>
+        <li class="bold "><a class="waves-effect waves-teal" id="profile">Profile</a></li>
         <li class="bold"><a class="waves-effect waves-teal" href="/logout/">Logout</a></li>
     </ul>
     <!-- end menuuuuu -->
@@ -56,26 +58,82 @@
                     </ul>
                 </div>
                 <div class="col l9 m9 s9 chat">
-                    <div class="messages-wrapper">
+                   <div id="chat">
+                     <div class="messages-wrapper">
                         <ul class="messages-list">
                         </ul>
-                    </div>
-                    <div class="input-wrapper">
+                      </div>
+                      <div class="input-wrapper">
                         <form id="form" action="" enctype="multipart/form-data">
                             <input id="m"  autocomplete="off" />
                             <input id="colorStyle" type="color" placeHolder='#000' title="font color" />
-                            <input id="roomnow" type="hidden"  value="<%= roomnow %>"/>
+                            <input id="roomnow" type="text" readonly="readonly"  value="<%= roomnow %>"/>
                             <input id="emojii" type="hidden"  value=""/>
                             <button class="btn btn-success">Send</button>
                             <input id="emoji" type="button" value="emoji" title="emoji" class="btn btn-success"/>
                             <div id="emojiWrapper">
                             </div>
-    <span class="btn btn-success fileinput-button"  title="select file">
-            <input id="fileupload" type="file" name='fileUploaded'  >
-        <div id="select">Select files...</div>
-    </span>
-                        </form>
+                            <span class="btn btn-success fileinput-button"  title="select file">
+                              <input id="fileupload" type="file" name='fileUploaded'  >
+                              <div id="select">Select files...</div>
+                            </span>
+                          </form>
+                        </div>
+                </div>
+                    <div class="form-profile" style="margin-top: 100px; width : 400px; margin-left : 50px;">
+                        <input type="text" id="name" placeholder="Name" class="form-control"><br>
+                        <input type="text" id="lastname" placeholder="LastName" class="form-control"><br>
+                        <input type="text" id="telephon" value="<%= user %>"  readonly="readonly"class="form-control"><br>
+
+                        <input type="hidden" id="avatar" placeholder="Avatar" class="form-control"><br>
+                        <div id="list_avatar">
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar1.jpg" class="avatar"  id="Avatar1" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar2.jpg"  class="avatar" id="Avatar2" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar3.jpg" class="avatar" id="Avatar3" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar4.jpg" class="avatar" id="Avatar4" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar5.jpg" class="avatar" id="Avatar5" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar6.jpg" class="avatar" id="Avatar6" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar7.jpg" class="avatar" id="Avatar7" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar8.jpg"  class="avatar" id="Avatar8" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar9.jpg"  class="avatar" id="Avatar8" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar10.jpg"  class="avatar" id="Avatar8" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar11.jpg"  class="avatar" id="Avatar8" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar12.jpg"  class="avatar" id="Avatar8" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar14.jpg"  class="avatar" id="Avatar8" />
+                            </div>
+                            <div class="avatar-thumb">
+                                <img src="img/avatars/Avatar15.jpg"  class="avatar" id="Avatar8" />
+                            </div>
+                            <div class="chat-box"></div>
+                        </div>
+                        <input type="button" id="login-submit" value="UpDate" class="btn btn-primary">
                     </div>
+
                 </div>
             </div>
             <!-- end main-content -->
@@ -107,9 +165,6 @@
     </div>
 </footer>
 <script src="js/jquery.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
-<script src="js/underscore-min.js"></script>
-
 <script src="js/materialize.min.js"></script>
 <script src="js/socket.io-1.2.0.js"></script>
 <script src="js/custom.js"></script>

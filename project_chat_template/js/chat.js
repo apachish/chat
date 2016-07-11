@@ -15,7 +15,7 @@ var HiChat = function() {
 HiChat.prototype = {
     init: function() {
         var that = this;
-        
+
         this._initialEmoji();
         document.getElementById('emoji').addEventListener('click', function(e) {
             var emojiwrapper = document.getElementById('emojiWrapper');
@@ -35,6 +35,7 @@ HiChat.prototype = {
                 messageInput.focus();
                  var message = messageInput.value + '[emoji:' + target.title + ']';
                 var room =  document.getElementById('roomnow').value;
+                console.log('emoji '+room+'   '+message+' '+ $("#user_online").val());
                 socket.emit('chat message '+room, message ,$("#user_online").val(), document.getElementById('colorStyle').value);
                 $.post("/addChat",
                     {text: message,room:room,font_color : $("#colorStyle").val()},

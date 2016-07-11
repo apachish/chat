@@ -22,7 +22,7 @@ var io              =     require('socket.io')(http);
 var router          =     express.Router();
 var fs              =     require('fs');						// fs module for handling file operations
 var formidable      =     require('formidable');		// file upload module
-
+// var _               = require('underscore');
 var room = {};
 var clients = [];
 var files_array  = [];
@@ -97,16 +97,13 @@ app.use(bodyParser.json());
 router.get('/',function(req,res){
     if(req.cookies.login) {
         pub.SMEMBERS('rooms',function (err, room) {
-            console.log(req.cookies);
             res.render('home.html',{user : req.cookies.device,room: room,roomnow:room[0]});
         });
         return;
     }
     if (req.cookies.device) {
-        console.log('p');
         res.render('index.html', { code:true,telephon: req.cookies.device});
     }else{
-        console.log('w');
         res.render('index.html', { code:false ,telephon: null});
     }
 });
@@ -115,7 +112,6 @@ router.post("/register",function(req,res){
     console.log(key);
     if(req.body.telephon.length == 10) {
         pub.sismember("Telephon", req.body.telephon, function (err, response) {
-            console.log("response: " + JSON.stringify(response));
             if (!response) {
                 pub.SADD("Telephon", req.body.telephon);
             }
@@ -148,10 +144,7 @@ router.post('/start',function(req,res){
             } else {
                 info_user = JSON.parse(information.info);
                 if(req.body.code == info_user.verify_code){
-                    console.log('match');
-                    console.log("cookie: "+JSON.stringify(req.session.key.session));
                     pub.sismember('SESSION_'+info_user.name,req.session.key.session, function (err, status_session) {
-                        console.log( status_session);
                        if(!status_session){
                            pub.SADD('SESSION_'+info_user.name,req.session.key.session);
                            res.cookie('login',req.session.key.session);
@@ -162,7 +155,6 @@ router.post('/start',function(req,res){
                     });
 
                 }else{
-                    console.log('not match');
                     res.json({"error" : true,"message" : "code error."});
 
                 }
@@ -175,7 +167,6 @@ router.post('/start',function(req,res){
 router.get('/home',function(req,res){
     if(req.cookies.login) {
         pub.SMEMBERS('rooms',function (err, room) {
-            console.log(room);
             res.render('home.html',{user : req.cookies.device,room: room,roomnow:room[0]});
         });
     } else {
@@ -185,12 +176,13 @@ router.get('/home',function(req,res){
 router.post("/addRoom",function(req,res){
     if(req.cookies.login) {
         pub.SADD('rooms',req.body.room_name,function (err, room) {
-            console.log(room);
+          pub.SADD(req.cookies.device+'_rooms',req.body.room_name,function (err, room) {
             if(room) {
                 res.json({"error" : false, "message" : "Room is added."});
             } else {
                 res.json({"error" : true, "message" : "Error while adding Room"});
             }
+          });
         });
     } else {
         res.json({"error" : true, "message" : "Please login first."});
@@ -198,8 +190,7 @@ router.post("/addRoom",function(req,res){
 });
 router.get("/loadRoom",function(req,res){
     if(req.cookies.login) {
-        pub.SMEMBERS('rooms',function (err, room) {
-            console.log(room);
+        pub.SMEMBERS(req.cookies.device+'_rooms',function (err, room) {
             if(room) {
                 res.json({"error" : false, "message" : room});
             } else {
@@ -212,6 +203,15 @@ router.get("/loadRoom",function(req,res){
 });
 router.post("/addChat",function(req,res){
     if(req.cookies.login) {
+      if(req.body.contact){
+        pub.RPUSH(req.body.room+'_'+req.cookies.device,JSON.stringify({name: req.cookies.device,text:req.body.text
+                ,color:req.body.font_color,created_date:new Date().getTime()}));
+        pub.RPUSH(req.cookies.device+'_'+req.body.room,JSON.stringify({name: req.cookies.device,text:req.body.text
+                      ,color:req.body.font_color,created_date:new Date().getTime()}));
+        pub.SADD(req.cookies.device+'_rooms',req.body.room);
+        pub.SADD(req.body.room+'_rooms',req.cookies.device);
+        res.json({"error" : false, "message" : 'send'});
+      }else{
         pub.RPUSH(req.body.room,JSON.stringify({name: req.cookies.device,text:req.body.text
                 ,color:req.body.font_color,created_date:new Date().getTime()})
             ,function (err, response) {
@@ -221,21 +221,15 @@ router.post("/addChat",function(req,res){
                     res.json({"error" : true, "message" : response});
                 }
             });
+      }
     } else {
         res.json({"error" : true, "message" : "Please login first."});
     }
 });
 router.get("/loadChat",function(req,res){
     req.body.room = req.query['room'];
-
-    console.log('lood test'+req.body.room);
     if(req.cookies.login) {
         pub.LRANGE(req.body.room,0,-1,function (err, response) {
-
-                // response.forEach(function(item) {
-                //     result = JSON.parse(item);
-                //     console.log(result.created_date);
-                // });
                 if(response) {
                     res.json({"error" : false, "message" : response});
                 }else{
@@ -250,9 +244,7 @@ router.get("/loadChat",function(req,res){
 
 router.get("/joinRoom",function(req,res){
     if(req.cookies.login) {
-        console.log({ user : req.cookies.device,roomnow : req.query["room"]});
         pub.LRANGE(req.query["room"],0,-1,function (err, response) {
-            console.log(response);
             if(response) {
                 res.json({"error" : false, "message" : response});
             }else{
@@ -268,7 +260,6 @@ router.get("/joinRoom",function(req,res){
 router.get("/fetchStatus",function(req,res){
     if(req.cookies.login) {
         pub.HGETALL('status',req.cookies.device,function (err, response) {
-            console.log(response);
             if(response) {
                 res.json({"error" : false, "message" : response});
             }else{
@@ -283,7 +274,6 @@ router.get("/fetchStatus",function(req,res){
 router.post("/addStatus",function(req,res){
     if(req.cookies.login) {
         pub.HSET('status',req.cookies.device,req.body.status,function (err, response) {
-            console.log(response);
             if(!response) {
                 res.json({"error" : false, "message" : "Status is added."});
             } else {
@@ -306,7 +296,7 @@ router.get("/addConntact",function(req,res){
 
                 });
         });
-        res.json({"error" : false, "message" : "contect check add."});
+        res.json({"error" : false, "message" : obj});
 
     } else {
         res.json({"error" : true, "message" : "Please login first."});
@@ -315,7 +305,6 @@ router.get("/addConntact",function(req,res){
 router.get("/loadContact",function(req,res){
     if(req.cookies.login) {
         pub.HGETALL(req.cookies.device+'_contact',function (err,info) {
-            console.log('contact'+info);
             if(room) {
                 res.json({"error" : false, "message" : info});
             } else {
@@ -336,28 +325,21 @@ router.post('/uploadImage',function (req, res){
         form.parse(req, function(err, fields, files) {
             res.writeHead(200, {'content-type': 'text/plain'});
             res.write('received upload:\n\n');
-            filename = req.session.key["user_name"] + "chat" + Date.now();
+            filename = req.cookies.device + "chat" + Date.now();
             filetype = files.file.type;
             type = filetype.split('/');
             fs.rename(files.file.path, '../upload/image/'+filename+'.'+type, function(err) {
                 if (err)
                     throw err;
-                console.log(fields.room);
                 req.body.room = fields.room;
                 req.body.text = 'data:image/'+filename+'.'+type;
-                pub.HSET('chat',req.body.room,req.cookies.device,JSON.stringify({text:req.body.text
-                        ,color:null,created_date:new Date().getTime()})
+                  pub.RPUSH(req.body.room,JSON.stringify({name: req.cookies.device,text:req.body.text
+                          ,color:null,created_date:new Date().getTime()})
                     ,function (err, response) {
-                        console.log(response);
-                        if(!response) {
-                            res.json({"error" : false, "message" : "image is added."});
-                        } else {
-                            res.json({"error" : false, "message" : "Error while adding image"});
-                        }
+                        res.end();
                     });
-                console.log('renamed complete');
+
             });
-            res.end();
         });
     } else {
         res.redirect('/');
@@ -375,28 +357,21 @@ router.post('/uploadAudio',function (req, res){
         form.parse(req, function(err, fields, files) {
             res.writeHead(200, {'content-type': 'text/plain'});
             res.write('received upload:\n\n');
-            filename = req.session.key["user_name"] + "chat" + Date.now();
+            filename = req.cookies.device+ "chat" + Date.now();
             filetype = files.file.type;
             type = filetype.split('/');
             fs.rename(files.file.path, '../upload/audio/'+filename+'.'+type, function(err) {
                 if (err)
                     throw err;
-                console.log(fields.room);
                 req.body.room = fields.room;
                 req.body.text = 'data:audio/'+filename+'.'+type;
-                pub.HSET('chat',req.body.room,req.cookies.device,JSON.stringify({text:req.body.text
+                pub.RPUSH(req.body.room,JSON.stringify({name: req.cookies.device,text:req.body.text
                         ,color:null,created_date:new Date().getTime()})
-                    ,function (err, response) {
-                        console.log(response);
-                        if(!response) {
-                            res.json({"error" : false, "message" : "audio is added."});
-                        } else {
-                            res.json({"error" : false, "message" : "Error while adding audio"});
-                        }
-                    });
-                console.log('renamed complete');
+                  ,function (err, response) {
+                      res.end();
+                  });
             });
-            res.end();
+
         });
     } else {
         res.redirect('/');
@@ -414,7 +389,7 @@ router.post('/uploadPDF',function (req, res){
         form.parse(req, function(err, fields, files) {
             res.writeHead(200, {'content-type': 'text/plain'});
             res.write('received upload:\n\n');
-            filename = req.session.key["user_name"] + "chat" + Date.now();
+            filename = req.cookies.device + "chat" + Date.now();
             filetype = files.file.type;
             type = filetype.split('/');
             fs.rename(files.file.path, '../upload/document/'+filename+'.'+type, function(err) {
@@ -422,19 +397,12 @@ router.post('/uploadPDF',function (req, res){
                     throw err;
                 req.body.room = fields.room;
                 req.body.text = 'data:application/'+filename+'.'+type;
-                pub.HSET('chat',req.body.room,req.cookies.device,JSON.stringify({text:req.body.text
+                pub.RPUSH(req.body.room,JSON.stringify({name: req.cookies.device,text:req.body.text
                         ,color:null,created_date:new Date().getTime()})
-                    ,function (err, response) {
-                        console.log(response);
-                        if(!response) {
-                            res.json({"error" : false, "message" : "pdf is added."});
-                        } else {
-                            res.json({"error" : false, "message" : "Error while adding pdf"});
-                        }
-                    });
-                console.log('renamed complete');
+                  ,function (err, response) {
+                      res.end();
+                  });
             });
-            res.end();
         });
     } else {
         res.redirect('/');
@@ -444,9 +412,11 @@ router.post('/uploadPDF',function (req, res){
 router.get('/logout',function(req,res){
     if(req.cookies.login) {
         console.log('startlogout');
-        res.clearCookie('login');
-        res.clearCookie('device');
-        res.redirect('/');
+        pub.SREM("SESSION_"+req.cookies.device,req.cookies.login,function (err,response) {
+            res.clearCookie('login');
+            res.clearCookie('device');
+            res.redirect('/');
+        });
     } else {
         res.redirect('/');
     }
@@ -455,8 +425,8 @@ router.get('/logout',function(req,res){
 app.use('/',router);
 
 io.on('connection', function(socket){
-    // console.log(io.sockets);
     socket.on('room', function(room,name) {
+
         if(name){
             if(room in clients){
                 clients[room]=clients[room].join(" , ");
@@ -489,18 +459,17 @@ io.on('connection', function(socket){
         socket.in(room).on('io:name', function (name) {
             io.emit('io:name', name);
         });
-        socket.on('chat message '+room, function(msg,name,color){
+        socket.on('chat_message_'+room, function(msg,name,color){
             console.log('chat message '+room);
-            console.log(JSON.stringify({name:name,text:msg,created_date:new Date().getTime(),color:color}));
-            io.emit('chat message '+room , {name:name,text:msg,created_date:new Date().getTime(),color:color});
+            console.log(JSON.stringify({name:name,created_date:new Date().getTime(),color:color}));
+            io.emit('chat_message_'+room , {name:name,text:msg,created_date:new Date().getTime(),color:color});
         });
         socket.on('disconnect', function(){
             console.log('user leave ' + room);
             socket.leave(room);
-            console.log(clients[room].indexOf(name));
-            clients[room].splice(clients[room].indexOf(name), 1);
-            console.log(clients[room]);
-            io.emit(room,clients[room]);   // send jobs
+            // clients[room].splice(clients[room].indexOf(name), 1);
+             io.emit(room,clients[room]);
+             console.log(clients[room]);
  //           console.log("cookie: "+JSON.stringify(socket.handshake.headers.cookie));
 
 
