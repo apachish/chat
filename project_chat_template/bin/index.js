@@ -166,8 +166,13 @@ router.post('/start',function(req,res){
 
 router.get('/home',function(req,res){
     if(req.cookies.login) {
-        pub.SMEMBERS('rooms',function (err, room) {
-            res.render('home.html',{user : req.cookies.device,room: room,roomnow:room[0]});
+        var roomnow = null;
+        pub.LRANGE( req.cookies.device+'_rooms',0,-1,function (err, room) {
+            if(!room){
+                roomnow = JSON.parse(room[0]);
+                roomnow = roomnow.room;
+            }
+            res.render('home.html',{user : req.cookies.device,room: room,roomnow:roomnow});
         });
     } else {
         res.redirect("/");
@@ -175,27 +180,40 @@ router.get('/home',function(req,res){
 });
 router.post("/addRoom",function(req,res){
     if(req.cookies.login) {
-        pub.SADD('rooms',req.body.room_name,function (err, room) {
-          pub.SADD(req.cookies.device+'_rooms',req.body.room_name,function (err, room) {
-            if(room) {
-                res.json({"error" : false, "message" : "Room is added."});
-            } else {
-                res.json({"error" : true, "message" : "Error while adding Room"});
+        pub.sismember('rooms',req.body.room_name,function (err, statusroom) {
+            if(!statusroom){
+                pub.SADD('rooms',req.body.room_name,function (err, room) {
+                    pub.RPUSH(req.cookies.device+'_rooms',JSON.stringify({room:req.body.room_name,name:req.body.room_name,contact:false}),function (err, room) {
+                        if(room) {
+                            res.json({"error" : false, "message" : "Room is added."});
+                        } else {
+                            res.json({"error" : true, "message" : "Error while adding Room"});
+                        }
+                    });
+                });
+            }else{
+                    pub.RPUSH(req.cookies.device+'_rooms',JSON.stringify({room:req.body.room_name,name:req.body.room_name,contact:false}),function (err, room) {
+                        if(room) {
+                            res.json({"error" : false, "message" : "Room is added."});
+                        } else {
+                            res.json({"error" : true, "message" : "Error while adding Room"});
+                        }
+                    });
             }
-          });
         });
+
     } else {
         res.json({"error" : true, "message" : "Please login first."});
     }
 });
 router.get("/loadRoom",function(req,res){
     if(req.cookies.login) {
-        pub.SMEMBERS(req.cookies.device+'_rooms',function (err, room) {
-            if(room) {
-                res.json({"error" : false, "message" : room});
-            } else {
-                res.json({"error" : false, "message" : "loading room"});
-            }
+        pub.LRANGE(req.cookies.device+'_rooms',0,-1,function (err, room) {
+                    if (room) {
+                        res.json({"error": false, "message": room});
+                    } else {
+                        res.json({"error": false, "message": room});
+                    }
         });
     } else {
         res.json({"error" : true, "message" : "Please login first."});
@@ -203,16 +221,24 @@ router.get("/loadRoom",function(req,res){
 });
 router.post("/addChat",function(req,res){
     if(req.cookies.login) {
-      if(req.body.contact){
+        console.log('rs'+req.body.contact);
+      if(req.body.contact == 'true'){
         pub.RPUSH(req.body.room+'_'+req.cookies.device,JSON.stringify({name: req.cookies.device,text:req.body.text
                 ,color:req.body.font_color,created_date:new Date().getTime()}));
         pub.RPUSH(req.cookies.device+'_'+req.body.room,JSON.stringify({name: req.cookies.device,text:req.body.text
                       ,color:req.body.font_color,created_date:new Date().getTime()}));
-        pub.SADD(req.cookies.device+'_rooms',req.body.room);
-        pub.SADD(req.body.room+'_rooms',req.cookies.device);
+          pub.sismember(req.cookies.device+'_rooms_contact',req.body.room, function (err, status_contact){
+              if(!status_contact){
+                  pub.SADD(req.cookies.device+'_rooms_contact',req.body.room);
+                  pub.SADD(req.body.room+'_rooms_contact',req.cookies.device);
+                  pub.RPUSH(req.cookies.device+'_rooms',JSON.stringify({room:req.body.room,name:req.body.name,contact:req.body.contact}));
+                  pub.RPUSH(req.body.room+'_rooms',JSON.stringify({room:req.cookies.device,name:req.body.name,contact:req.body.contact}));
+              }
+          });
+
         res.json({"error" : false, "message" : 'send'});
       }else{
-        pub.RPUSH(req.body.room,JSON.stringify({name: req.cookies.device,text:req.body.text
+          pub.RPUSH(req.body.room,JSON.stringify({name: req.cookies.device,text:req.body.text
                 ,color:req.body.font_color,created_date:new Date().getTime()})
             ,function (err, response) {
                 if(!response) {
@@ -229,13 +255,28 @@ router.post("/addChat",function(req,res){
 router.get("/loadChat",function(req,res){
     req.body.room = req.query['room'];
     if(req.cookies.login) {
-        pub.LRANGE(req.body.room,0,-1,function (err, response) {
+        console.log(req.query['contact']);
+        if(req.query['contact'] == 'true'){
+            console.log('loadchatcontact');
+            pub.LRANGE(req.cookies.device+'_'+req.body.room,0,-1,function (err, response) {
                 if(response) {
                     res.json({"error" : false, "message" : response});
                 }else{
                     res.json({"error" : true, "message" : 'not message'});
                 }
-        });
+            });
+        }else{
+            console.log('loadchatroom');
+
+            pub.LRANGE(req.body.room,0,-1,function (err, response) {
+                if(response) {
+                    res.json({"error" : false, "message" : response});
+                }else{
+                    res.json({"error" : true, "message" : 'not message'});
+                }
+            });
+        }
+
 
     } else {
         res.json({"error" : true, "message" : "Please login first."});
@@ -243,18 +284,33 @@ router.get("/loadChat",function(req,res){
 });
 
 router.get("/joinRoom",function(req,res){
+    req.body.room = req.query['room'];
     if(req.cookies.login) {
-        pub.LRANGE(req.query["room"],0,-1,function (err, response) {
-            if(response) {
-                res.json({"error" : false, "message" : response});
-            }else{
-                res.json({"error" : true, "message" : 'not message'});
-            }
-        });
-        // res.render("chat.html",{ user : req.cookies.device,room : req.query["room"]});
+        console.log(req.query['contact']);
+        if(req.query['contact'] == 'true'){
+            console.log('loadchatcontact');
+            pub.LRANGE(req.cookies.device+'_'+req.body.room,0,-1,function (err, response) {
+                if(response) {
+                    res.json({"error" : false, "message" : response});
+                }else{
+                    res.json({"error" : true, "message" : 'not message'});
+                }
+            });
+        }else{
+            console.log('loadchatroom');
+
+            pub.LRANGE(req.body.room,0,-1,function (err, response) {
+                if(response) {
+                    res.json({"error" : false, "message" : response});
+                }else{
+                    res.json({"error" : true, "message" : 'not message'});
+                }
+            });
+        }
+
 
     } else {
-        res.redirect('/');
+        res.json({"error" : true, "message" : "Please login first."});
     }
 });
 router.get("/fetchStatus",function(req,res){
@@ -287,13 +343,20 @@ router.post("/addStatus",function(req,res){
 
 router.get("/addConntact",function(req,res){
     if(req.cookies.login) {
+        var tel = [];
         var obj = JSON.parse(fs.readFileSync('../views/contacts.json', 'utf8'));
         obj.forEach(function(item) {
             // result = JSON.parse(item);
-            name = item.firstName+'_'+item.lastName;
+            name = item.displayName;
             pub.HSET(req.cookies.device+"_contact",name,JSON.stringify(item)
                 ,function (err, response) {
-
+                    listtel = item.phoneNumbers;
+                    listtel.forEach(function(telephon) {
+                        if(telephon.type == 'mobile'){
+                            tel.push(telephon.value);
+                        }
+                    });
+                    pub.SADD(req.cookies.device+"_contactlist",tel);
                 });
         });
         res.json({"error" : false, "message" : obj});
@@ -305,7 +368,7 @@ router.get("/addConntact",function(req,res){
 router.get("/loadContact",function(req,res){
     if(req.cookies.login) {
         pub.HGETALL(req.cookies.device+'_contact',function (err,info) {
-            if(room) {
+            if(info) {
                 res.json({"error" : false, "message" : info});
             } else {
                 res.json({"error" : false, "message" : "loading room"});

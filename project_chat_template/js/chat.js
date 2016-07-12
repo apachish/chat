@@ -34,18 +34,21 @@ HiChat.prototype = {
                 var messageInput = document.getElementById('m');
                 messageInput.focus();
                  var message = messageInput.value + '[emoji:' + target.title + ']';
-                var room =  document.getElementById('roomnow').value;
-                console.log('emoji '+room+'   '+message+' '+ $("#user_online").val());
-                socket.emit('chat message '+room, message ,$("#user_online").val(), document.getElementById('colorStyle').value);
-                $.post("/addChat",
-                    {text: message,room:room,font_color : $("#colorStyle").val()},
-                    function (res) {
-                        if (!res.error) {
-                            alert(res.message);
-                        }
-                    });
-                $('#m').val('');
-                return false;
+                window.room = $("#roomnow").val();
+                contact = $("#contact").val();
+                name = $("#namecontact").val();
+                    socket.emit('chat_message_'+room, $('#m').val() ,name,$("#colorStyle").val());
+
+                    $.post("/addChat",
+                        {text: message,room:window.room,font_color : $("#colorStyle").val(),contact:contact,name:name},
+                        function (res) {
+                            if (!res.error) {
+                                return false;
+                            }
+                            return false;
+                        });
+                    $('#m').val('');
+                    return false;
             };
         }, false);
     },

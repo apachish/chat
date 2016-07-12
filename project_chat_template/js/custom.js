@@ -113,7 +113,7 @@ $(document).on("ready",function(){
                     if(!res.error) {
                         var roomnow = $("#roomnow").val();
                           $("#roomnow").val(name);
-                          room = name;
+                          window.room = name;
                           $('.messages-list').html("");
                         $("#Room").append('<li class="navbar-text navbar-right"  ><a class="joinRoom"  data-id="' + name + '">' + name + '</a></li>');
                         $("#nav-mobile").css("margin-left","240px");
@@ -133,13 +133,15 @@ $(document).on("ready",function(){
           $('#chat').show();
           $.get(window.location.origin+"/loadRoom", function (res) {
             $("#Room").html('');
-            $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom checked"  data-id="' + joinroom + '">' + text + '</a></li>');
+            $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom checked"  data-contact="true" data-id="' + joinroom + '">' + text + '</a></li>');
+              $("#contact").val(true);
+              $("#namecontact").val(text);
               $.each(res.message, function (index, value) {
-                  $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom"  data-id="' + value + '">' + value + '</a></li>');
+                  value = JSON.parse(value);
+                  $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom ' + checked + '"  data-contact="'+value.contact+'" data-id="' + value.room + '">' + value.name + '</a></li>');
               });
           });
-
-          room = joinroom;
+          window.room = joinroom;
           console.log(window.room);
         $.ajax({
             url:  window.location.origin+"/joinRoom?room="+joinroom,
@@ -164,14 +166,16 @@ $(document).on("ready",function(){
     });
     $(document).on('click','.joinRoom',function(){
         var joinroom = $(this).attr('data-id');
+        var contact  = $('#contact').val($(this).attr('data-contact'));
+        $('#namecontact').val($(this).text());
         $("#roomnow").val(joinroom);
         $('.messages-list').html("");
-          room = joinroom;
+          window.room = joinroom;
           console.log(window.room);
         $.ajax({
-            url:  window.location.origin+"/joinRoom?room="+joinroom,
+            url:  window.location.origin+"/joinRoom?room="+joinroom+"&contact="+$(this).attr('data-contact'),
             type: "GET",             // Type of request to be send, called as method
-            data: {room: joinroom},
+            data: {room: joinroom,contact: $(this).attr('data-contact')},
             contentType: false,       // The content type used when sending data to the server.
             cache: false,             // To unable request pages to be cached
             processData:false,        // To send DOMDocument or non processed data file it is set to false
@@ -192,24 +196,29 @@ $(document).on("ready",function(){
     $(document).on('click','#chat-list',function(){
       $('.form-profile').hide();
       $('#chat').show();
-      $.get(window.location.origin+"/loadRoom", function (res) {
-        $("#Room").html('');
-          $.each(res.message, function (index, value) {
-              if(!index){
-                  checked="checked";
-                  room = value;
-              }else{
-                  checked="";
-              }
-              $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom ' + checked + '"  data-id="' + value + '">' + value + '</a></li>');
-          });
-          $.get(window.location.origin+'/loadChat?room='+window.room,function(res){
-              $.each(res.message,function(index,value) {
-                  renderMessage(index,value);
-              });
-              scrollToBottom();
-          });
-      });
+        $.get(window.location.origin+"/loadRoom", function (res) {
+            $("#Room").html('');
+            $.each(res.message, function (index, value) {
+                value = JSON.parse(value);
+                if(!index){
+                    checked="checked";
+                    $("#roomnow").val(value.room);
+                    $("#contact").val(value.contact);
+                    $("#namecontact").val(value.name);
+                    window.room = value.room;
+                }else{
+                    checked="";
+                }
+                $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom ' + checked + '"  data-contact="'+value.contact+'" data-id="' + value.room + '">' + value.name + '</a></li>');
+            });
+            var contact = $('#contact').val();
+            $.get(window.location.origin+'/loadChat?room='+window.room+'&contact='+contact,function(res){
+                $.each(res.message,function(index,value) {
+                    renderMessage(index,value);
+                });
+                scrollToBottom();
+            });
+        });
       $("#nav-mobile").css("margin-left","240px");
 
     });
@@ -227,14 +236,14 @@ $(document).on("ready",function(){
         $("#Room").html("");
         $("#Room").html('<img src="img/load.png" class="loadContactlist logo-img" alt="loadContactlist">');
         $.each(res.message, function (index, value) {
-            $.each(value.phoneNumber,function (key ,tel) {
+            $.each(value.phoneNumbers,function (key ,tel) {
                 if(tel.type == 'mobile'){
-                    telephon = tel.number;
+                    telephon = tel.value;
                 }
             });
             html  = '<li class="navbar-text navbar-right ">';
             html += '<a class="user_contact"  data-id="' + telephon + '">';
-            html +=  '<span>'+value.lastName+' '+value.firstName+'</span> : '+ telephon;
+            html +=  '<span>'+value.displayName+'</span> : '+ telephon;
             html += '</a></li>';
             $("#Room").append(html);
         });
@@ -251,9 +260,9 @@ $(document).on("ready",function(){
             $("#Room").html('<img src="img/load.png" class="loadContactlist logo-img" alt="loadContactlist">');
             $.each(res.message, function (index, value) {
                 value = JSON.parse(value);
-                $.each(value.phoneNumber,function (key ,tel) {
+                $.each(value.phoneNumbers,function (key ,tel) {
                     if(tel.type == 'mobile'){
-                        telephon = tel.number;
+                        telephon = tel.value;
                     }
                     if(!room){
                       $("#roomnow").val(tel.number);
@@ -262,7 +271,7 @@ $(document).on("ready",function(){
                 });
                 html  = '<li class="navbar-text navbar-right ">';
                 html += '<a class="user_contact"  data-id="' + telephon + '">';
-                html +=  '<span>'+value.lastName+' '+value.firstName+'</span> : '+ telephon;
+                html +=  '<span>'+ value.displayName +'</span> : '+ telephon;
                 html += '</a></li>';
                 $("#Room").append(html);
             });
@@ -272,15 +281,21 @@ $(document).on("ready",function(){
     });
     $.get(window.location.origin+"/loadRoom", function (res) {
         $.each(res.message, function (index, value) {
+            value = JSON.parse(value);
+            console.log(value);
             if(!index){
                 checked="checked";
-                room = value;
+                $("#roomnow").val(value.room);
+                $("#contact").val(value.contact);
+                $("#namecontact").val(value.name);
+                window.room = value.room;
             }else{
                 checked="";
             }
-            $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom ' + checked + '"  data-id="' + value + '">' + value + '</a></li>');
+            $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom ' + checked + '"  data-contact="'+value.contact+'" data-id="' + value.room + '">' + value.name + '</a></li>');
         });
-        $.get(window.location.origin+'/loadChat?room='+window.room,function(res){
+        var contact = $('#contact').val();
+        $.get(window.location.origin+'/loadChat?room='+window.room+'&contact='+contact,function(res){
             $.each(res.message,function(index,value) {
                 renderMessage(index,value);
             });
@@ -364,12 +379,14 @@ $(document).on("ready",function(){
     });
 
     $('#form').submit(function(){
-        room = $("#roomnow").val();
+        window.room = $("#roomnow").val();
+        contact = $("#contact").val();
+        name = $("#namecontact").val();
             if ($("#m").val() !== "") {
-                socket.emit('chat_message_'+room, $('#m').val() ,name,$("#colorStyle").val());
+                socket.emit('chat_message_'+window.room, $('#m').val() ,name,$("#colorStyle").val());
 
                 $.post("/addChat",
-                    {text: $("#m").val(),room:room,font_color : $("#colorStyle").val()},
+                    {text: $("#m").val(),room:window.room,font_color : $("#colorStyle").val(),contact:contact,name:name},
                     function (res) {
                         if (!res.error) {
                             return false;
