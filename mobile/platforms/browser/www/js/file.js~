@@ -1,0 +1,162 @@
+function onDeviceReady(){
+
+//file:///android_asset/      applicationDirectory                            r       N/A     N/A     Yes
+///data/data/<app-id>/        applicationStorageDirectory             -       r/w     N/A     N/A     Yes
+//    cache                   cacheDirectory                      cache       r/w     Yes     Yes*    Yes
+//    files                   dataDirectory                       files       r/w     Yes     No      Yes
+//        Documents           documents                                       r/w     Yes     No      Yes
+//<sdcard>/                   externalRootDirectory               sdcard      r/w     Yes     No      No
+//    Android/data/<app-id>/  externalApplicationStorageDirectory     -       r/w     Yes     No      No
+//        cache               externalCacheDirectory          cache-external  r/w     Yes     No**    No
+//        files               externalDataDirectory           files-external  r/w     Yes     No      No
+
+	$("#download").click(function(){
+		download(
+            'http://tanzil.net/res/audio/juhany/001003.mp3',
+            'test_mp3_001003.mp3',
+            function(res){
+                console.log('File downloaded to '+filePath);
+            },
+            function(e){
+                console.log('File download Errot.'+e.code+"\n"+url+"\n"+filePath);
+            }
+        );
+	});
+	$("#createDir").click(function(){
+		res = createDir('sub_dir');
+        alert("create:"+res);
+	});
+	$("#scanDir").click(function(){
+		res = scanDir('.');
+        alert("create:"+res);
+	});
+	$("#writeFile").click(function(){
+        text = $("#textarea").val();
+		res = writeFile('test.log.txt',text);
+        alert("write done"+res);
+	});
+	$("#readFile").click(function(){
+        readFile('test.log.txt',function(text){
+            alert("read:"+text);
+        },
+        function(e){
+            alert("error with code "+e.code);
+        });
+	});
+	$("#removeFile").click(function(){
+		res = removeFile('test.log.txt');
+        alert("remove:"+res);
+	});
+
+}
+
+function createDir(fileName) {
+
+}
+
+function scanDir(fileName) {
+    
+}
+
+function download(url,filePath,success,error)
+{
+    console.log("going to download "+url+" and save to "+filePath);
+
+    var fileTransfer = new FileTransfer();
+    var uri = encodeURI(url);
+
+    fileTransfer.download(
+        uri,
+        filePath,
+        function(entry) {
+            console.log("succefully download "+url+" to "+filePath);
+            //console.log(entry);
+            success(entry);
+        },
+        function(error) {
+            console.log("download error"+url+" to "+filePath);
+            colsole.log(error);
+            error(error);
+        },
+        false,
+        {
+            headers: {
+                "Authorization": "Basic dGVzdHVzZXJuYW1lOnRlc3RwYXNzd29yZA=="
+            }
+        }
+    );
+
+    return "Done";
+}
+
+
+function writeFile(basePath,fileName,text) {
+    console.log("going to write to "+basePath+fileName);
+    window.resolveLocalFileSystemURL(basePath, function(dir) {
+        dir.getFile(fileName, {create:true}, function(file) {
+            if(!file){
+                console.log("write failed");
+                return;
+            }
+            file.createWriter(function(fileWriter) {
+                
+                fileWriter.seek(fileWriter.length);
+                
+                var blob = new Blob([text], {type:'text/plain'});
+                fileWriter.write(blob);
+                console.log("Write was successfull");
+            });
+        });
+    });    
+   //return filePath; 
+}
+
+function readFile(filePath) {
+    console.log("going to read "+filePath);
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET",filePath,false);
+    xmlhttp.send(null);
+    status = xmlhttp.status;
+    if(status==200||status==0)
+    {
+        return xmlhttp.responseText;
+    }else{
+        console.log(filePath+" not exists(2)!");
+        return false;
+    }
+}   
+
+
+
+function removeFile(filePath,successCallback,failCallback) {
+    console.log("going to remove "+filePath);
+    if(!file_exist(filePath))
+    {
+        console.log("file not exists to remove "+filePath);
+        return;
+    }
+    window.resolveLocalFileSystemURL(
+        filePath, 
+        function gotFile(fileEntry) {
+             fileEntry.remove(function() {
+                console.log("remove was successfull");
+             }, 
+             function(e){
+                console.log('File remove Error.'+e.code+" "+filePath);
+             });
+        }, 
+        function(e) {
+             console.log('File remove Error.'+e.code+" "+filePath);
+        }
+    );
+   return filePath; 
+}
+
+function file_exist(filePath){
+    var response = $.ajax({
+    url: filePath,
+    type: 'HEAD',
+    async: false
+    }).status;
+    return (response=="200"||response == "0") ? true : false;
+}

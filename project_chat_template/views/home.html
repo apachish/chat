@@ -13,9 +13,8 @@
     <nav class="top-nav">
         <div class="notifications">
             <!-- start first header -->
-            <input type="hidden" id="user_online" value="<%= user %>">
-            <input type="hidden" id="room_list" value="<%= room %>">
-
+            <input type="hidden" id="user_online" readonly="readonly" >
+            <input id="session" type="hidden" readonly="readonly"  />
             <!-- end first header -->
         </div>
         <div class="container header-data">
@@ -67,7 +66,7 @@
                         <form id="form" action="" enctype="multipart/form-data">
                             <input id="m"  autocomplete="off" />
                             <input id="colorStyle" type="color" placeHolder='#000' title="font color" />
-                            <input id="roomnow" type="text" readonly="readonly"  value="<%= roomnow %>"/>
+                            <input id="roomnow" type="text" readonly="readonly"  value=""/>
                             <input id="contact" type="text" readonly="readonly"  />
                             <input id="namecontact" type="text" readonly="readonly"  />
                             <input id="emojii" type="hidden"  value=""/>
@@ -85,7 +84,7 @@
                     <div class="form-profile" style="margin-top: 100px; width : 400px; margin-left : 50px;">
                         <input type="text" id="name" placeholder="Name" class="form-control"><br>
                         <input type="text" id="lastname" placeholder="LastName" class="form-control"><br>
-                        <input type="text" id="telephon" value="<%= user %>"  readonly="readonly"class="form-control"><br>
+                        <input type="text" id="telephon" value=""  readonly="readonly"class="form-control"><br>
 
                         <input type="hidden" id="avatar" placeholder="Avatar" class="form-control"><br>
                         <div id="list_avatar">
@@ -168,8 +167,10 @@
 </footer>
 <script src="js/jquery.min.js"></script>
 <script src="js/materialize.min.js"></script>
-<script src="js/socket.io-1.2.0.js"></script>
+<script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>
 <script src="js/custom.js"></script>
+<script src="js/chatroom.js"></script>
 <script src="js/chat.js"></script>
+<script src="js/web.js"></script>
 </body>
 </html>

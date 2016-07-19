@@ -1,0 +1,105 @@
+<html>
+<head>
+
+    <title>Chat :-D</title>
+
+    <link href="http://192.168.100.23:4000/css/icon.css" rel="stylesheet">
+    <link href="http://192.168.100.23:4000/css/materialize.min.css" rel="stylesheet">
+    <link href="http://192.168.100.23:4000/css/custom.css" rel="stylesheet">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+<header class="menu-down">
+    <nav class="top-nav">
+        <div class="notifications">
+            <!-- start first header -->
+            <input type="hidden" id="user_online" readonly="readonly" >
+            <input id="session" type="hidden" readonly="readonly"  />
+
+
+            <!-- end first header -->
+        </div>
+        <div class="container header-data">
+            <!-- start second header -->
+            <a class="button-collapse top-nav full hide-on-large-only" data-activates="nav-mobile" href="#">
+                <i class="material-icons mob-menu">menu</i>
+            </a>
+            <i class="material-icons second-menu">reorder</i>
+            <div class="nav-wrapper"><a class="page-title"><img src="http://192.168.100.23:4000/img/logo.png" class="logo-img"></a></div>
+            <!-- end second header -->
+        </div>
+    </nav>
+
+
+    <!-- start menuuuuu -->
+    <ul class="side-nav fixed" id="nav-mobile" style="transform: translateX(0%);">
+        <li class="width-menu">
+            <i class="material-icons main-menu">reorder</i>
+        </li>
+        <!-- <li class="logo"><a class="brand-logo" href="http://materializecss.com/" id="logo-container">
+            <object data="res/materialize.svg" type="image/svg+xml" id="front-page-logo">Your browser does not support SVG</object></a></li> -->
+
+        <li class="bold"><a class="waves-effect waves-teal" id="new-group">New Group</a></li>
+        <li class="bold"><a class="waves-effect waves-teal" id="chat-list">Chat List</a></li>
+        <li class="bold "><a class="waves-effect waves-teal" id="contacts" >Contact</a></li>
+        <li class="bold "><a class="waves-effect waves-teal" id="profile">Profile</a></li>
+        <li class="bold"><a class="waves-effect waves-teal" id="logout">Logout</a></li>
+    </ul>
+    <!-- end menuuuuu -->
+</header>
+
+<main class="menu-down"><div class="container">
+    <div class="row">
+        <div class="s12">
+            <!-- start main content -->
+            <!-- end main-content -->
+        </div>
+    </div>
+</div>
+
+
+</main>
+
+
+<footer class="page-footer menu-down">
+    <div class="container">
+        <div class="row">
+            <!-- start first footer -->
+
+
+            <!-- end first footer -->
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+
+            <!-- start second foter -->
+            &copy; 2014-2016 Materialize, All rights reserved.
+            <a href="https://github.com/Dogfalo/materialize/blob/master/LICENSE" class="grey-text text-lighten-4 right">MIT License</a>
+            <!-- end second footer -->
+        </div>
+    </div>
+</footer>
+<script src="http://192.168.100.23:4000/js/jquery.min.js"></script>
+<script type="text/javascript" src="cordova.js"></script>
+<script src="http://192.168.100.23:4000/js/materialize.min.js"></script>
+
+<script src="http://192.168.100.23:4000/js/socket.io-1.2.0.js"></script>
+
+<script src="http://192.168.100.23:4000/js/custom.js"></script>
+<script src="http://192.168.100.23:4000/js/chatroom.js"></script>
+
+<script src="http://192.168.100.23:4000/js/chat.js"></script>
+<script>
+    $(document).ready(function(){
+        document.addEventListener("deviceready",onDeviceReady,false);
+    });
+    function onDeviceReady(){
+        console.log('test');
+    }
+</script>
+<!--<script src="js/file.js"></script>-->
+
+</body>
+</html>

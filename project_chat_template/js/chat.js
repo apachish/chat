@@ -37,10 +37,10 @@ HiChat.prototype = {
                 window.room = $("#roomnow").val();
                 contact = $("#contact").val();
                 name = $("#namecontact").val();
-                    socket.emit('chat_message_'+room, $('#m').val() ,name,$("#colorStyle").val());
-
-                    $.post("/addChat",
-                        {text: message,room:window.room,font_color : $("#colorStyle").val(),contact:contact,name:name},
+                    socket.emit('chat_message', message ,$('#user_online').val(),$("#colorStyle").val());
+                    console.log('post'+{text: message,room:window.room,font_color : $("#colorStyle").val(),contact:contact,name:name,session:$('#session').val(),user_online : $('#user_online').val()});
+                    $.post("http://192.168.100.23:4000/addChat",
+                        {text: message,room:window.room,font_color : $("#colorStyle").val(),contact:contact,name:name,session:$('#session').val(),user_online : $('#user_online').val()},
                         function (res) {
                             if (!res.error) {
                                 return false;
@@ -57,7 +57,7 @@ HiChat.prototype = {
             docFragment = document.createDocumentFragment();
         for (var i = 69; i > 0; i--) {
             var emojiItem = document.createElement('img');
-            emojiItem.src = 'img/emoji/' + i + '.gif';
+            emojiItem.src = 'http://192.168.100.23:4000/img/emoji/' + i + '.gif';
             emojiItem.title = i;
             docFragment.appendChild(emojiItem);
         };
