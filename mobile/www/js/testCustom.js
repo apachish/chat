@@ -1,0 +1,12 @@
+$(document).ready(function(){
+    $(document).on('click','.start-message-btn',function(){
+        $(".start-page-section").hide();
+        $(".enter-number-section").show();
+        $(".enter-number-btn").show();
+    });
+    $(document).on('click','.enter-number-btn',function(){
+        $(".enter-number-section").hide();
+        $(".enter-number-btn").hide();
+        $(".verification-code-section").show();
+    });
+});

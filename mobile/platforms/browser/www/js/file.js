@@ -56,35 +56,36 @@ function onDeviceReady(){
         $('#nav-mobile').hide();
         $('#login').show();
     }
-    $('#Code-submit').click(function () {
-        console.log($("#code").val());
-        console.log($("#tel").text());
-        $.post("http://192.168.100.23:4000/start",{
-            code        : $("#code").val(),
-            telephon    : $("#tel").text()
-        },function(data){
-            console.log('data'+JSON.stringify(data));
-            if(!data.error) {
-                msg = JSON.parse(data.message);
-                var session = msg.login;
-                var user_online = msg.device;
-                console.log('file'+session);
-                 // removeFile(local_storage_path+'session.txt');
-                console.log('writefile');
-                res = writeFile(local_storage_path,'session.txt',session+'####'+user_online);
-                $('#main').show();
-                $('#login').hide();
-                $('#nav-mobile').show();
-                $('#session').val(session);
-                $('#user_online').val(user_online);
-                load(session,user_online);
-            } else {
-                alert(data.message);
-            }
-        });
+    $(document).on('keyup','#code',function(){
+        if($(this).val().length == 5) {
+            console.log($("#code").val());
+            console.log($("#tel").text());
+            $.post("http://192.168.100.23:4000/start", {
+                code: $("#code").val(),
+                telephon: $("#tel").text()
+            }, function (data) {
+                console.log('data' + JSON.stringify(data));
+                if (!data.error) {
+                    msg = JSON.parse(data.message);
+                    var session = msg.login;
+                    var user_online = msg.device;
+                    console.log('file' + session);
+                    // removeFile(local_storage_path+'session.txt');
+                    console.log('writefile');
+                    res = writeFile(local_storage_path, 'session.txt', session + '####' + user_online);
+                    $('#main').show();
+                    $('#login').hide();
+                    $('#nav-mobile').show();
+                    $('#session').val(session);
+                    $('#user_online').val(user_online);
+                    load(session, user_online);
+                } else {
+                    alert(data.message);
+                }
+            });
 
 
-
+        }
     });
     $('#logout').click(function () {
         removeFile(local_storage_path+'session.txt');

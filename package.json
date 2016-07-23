@@ -12,6 +12,8 @@
     "express-session": "^1.11.3",
     "mysql": "^2.7.0",
     "redis": "^0.12.1",
-    "formidable" :  "^1.0.17 "
+    "formidable" :  "^1.0.17 ",
+    "net" : "*",
+    "sys" : "*"
   }
 }
