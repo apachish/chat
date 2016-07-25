@@ -1,5 +1,5 @@
-var socket = io('ws://192.168.100.22:4000', { query: "platform=web" });
-var address ="http://192.168.100.22:4000";
+var socket = io('ws://chat.asemanapps.ir:4000', { query: "platform=web" });
+var address ="http://chat.asemanapps.ir:4000";
 function showEmoji(msg) {
     var match, result = msg,
         reg = /\[emoji:\d+\]/g,
@@ -43,27 +43,6 @@ $(document).on("ready",function(){
     $(".form-profile").hide();
     var user_online = $('#user_online').val();
     var session = $('#session').val();
-    $(".second-menu").hide();
-    $('.button-collapse').sideNav({
-        menuWidth: 240, // Default is 240
-        edge: 'left', // Choose the horizontal origin
-        closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
-    });
-    $(document).on('click','.main-menu',function(){
-       $("#nav-mobile").css("margin-left","-240px");
-       $('header').css("padding-left","0px");
-       $('main').css("padding-left","0px");
-       $('footer').css("padding-left","0px");
-       $(".container").css("padding-left","0px");
-       $(".second-menu").show();
-    });
-    $(document).on('click','.second-menu',function(){
-        $('header').css("padding-left","240px");
-        $('main').css("padding-left","240px");
-        $('footer').css("padding-left","240px");
-        $("#nav-mobile").css("margin-left","0px");
-        $(".second-menu").hide();
-    });
     $('#new-group').click(function(e){
         $('.bold').removeClass('active');
         $(this).parent('li').addClass('active');
@@ -80,16 +59,23 @@ $(document).on("ready",function(){
             var session         = $('#session').val();
             var user_online     = $('#user_online').val();
             $.post(address+"/addRoom",
-                { room_name : name ,session : session ,user_online :user_online},
+                { room_name : name ,session : session ,user_online :user_online,img:'/img/room/1.jpge'},
                 function(res){
                     if(!res.error) {
+                        console.log(res.message);
                         $("#roomnow").val(name);
                         $("#namecontact").val(name);
                         $("#contact").val(false);
                         window.room = name;
                         $(".messages-list").attr('id',name);
                         $('.messages-list').html("");
-                        $("#Room").append('<li class="navbar-text navbar-right"  ><a class="joinRoom"  data-id="' + name + '">' + name + '</a></li>');
+                        html ='<li class="navbar-text navbar-right "  >' ;
+                        html +='<img class="group-avatar" src="'+address+'/img/room/1.jpge" />';
+                        html += '<a class="joinRoom"  data-contact="false" data-id="' + name + '">';
+                        html += name ;
+                        html +='</a>';
+                        html +='</li>';
+                        $("#Room").append(html);
                         $("#nav-mobile").css("margin-left","5%");
                     }
                 });
@@ -136,27 +122,29 @@ $(document).on("ready",function(){
             }
         });
     });
-    $(document).on('click','.joinRoom',function(){
-        var joinroom = $(this).attr('data-id');
-        var contact  = $('#contact').val($(this).attr('data-contact'));
+    $(document).on('click','.navbar-text',function(){
+        $(".send-btn").hide();
+        $(".attach-file-div").show();
+        $(".group-contain").hide();
+        var joinroom = $(this).find("a").attr('data-id');
+        var contact  = $('#contact').val($(this).find("a").attr('data-contact'));
         user_online = $('#user_online').val();
         session     = $('#session').val();
-        $('#namecontact').val($(this).text());
+        $('#namecontact').val($(this).find("a").text());
         $("#roomnow").val(joinroom);
         $('.messages-list').html("");
           window.room = joinroom;
         $(".messages-list").attr('id',window.room);
         $.ajax({
-            url:  address+"/joinRoom?room="+joinroom+"&contact="+$(this).attr('data-contact')+"&session="+session+"&user_online="+user_online,
+            url:  address+"/joinRoom?room="+joinroom+"&contact="+$(this).find("a").attr('data-contact')+"&session="+session+"&user_online="+user_online,
             type: "GET",             // Type of request to be send, called as method
-            data: {room: joinroom,contact: $(this).attr('data-contact'),session: session, user_online : user_online},
+            data: {room: joinroom,contact: $(this).find("a").attr('data-contact'),session: session, user_online : user_online},
             contentType: false,       // The content type used when sending data to the server.
             cache: false,             // To unable request pages to be cached
             processData:false,        // To send DOMDocument or non processed data file it is set to false
             success: function (res) {
                 if (!res.error) {
                         $.each(res.message,function(index,value) {
-                            console.log(value);
                             renderMessage(index,value,window.room);
                             scrollToBottom();
                     })
@@ -165,32 +153,13 @@ $(document).on("ready",function(){
                 }
             }
         });
+        $(".back-icon").removeClass("hide");
+        $(".chat-contain").show();
     });
     $(document).on('click','#chat-list',function(){
-      $('.form-profile').hide();
-      $('#chat').show();
-      $('#Room').show();
-        user_online = $('#user_online').val();
-        session = $('#session').val();
-        $.get(address+"/loadRoom?session="+session+"&user_online="+user_online, function (res) {
-            $("#Room").html('');
-            $.each(res.message, function (index, value) {
-                value = JSON.parse(value);
-                console.log(value);
-
-                if(!index){
-                    checked="checked";
-                    $("#roomnow").val(value.room);
-                    $("#contact").val(value.contact);
-                    $("#namecontact").val(value.name);
-                    window.room = value.room;
-                }else{
-                    checked="";
-                }
-                $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom ' + checked + '"  data-contact="'+value.contact+'" data-id="' + value.room + '">' + value.name + '</a></li>');
-            });
-        });
-      $("#nav-mobile").css("margin-left","5%");
+        $(".back-icon").addClass("hide");
+        $(".chat-contain").hide();
+        $(".group-contain").show();
     });
     $(document).on('click','#profile',function(){
       $('.bold').removeClass('active');
@@ -323,7 +292,6 @@ $(document).on("ready",function(){
                         return false;
                         break;
                 }
-                console.log('emit'+room+'  '+name);
                 socket.emit('chat_message_'+window.room,e.target.result,name);
             };
             reader.readAsDataURL(file);
@@ -339,6 +307,7 @@ $(document).on("ready",function(){
         session     = $('#session').val();
         if ($("#m").val() !== "") {
             socket.emit('chat_message', $('#m').val() ,$('#user_online').val(),$("#colorStyle").val());
+            socket.emit('room_message', $('#m').val() ,$('#user_online').val(),$("#colorStyle").val());
             $.post(address+"/addChat",
                 {text: $("#m").val(),room:window.room,font_color : $("#colorStyle").val(),contact:contact,name:name,session:session ,user_online : user_online},
                 function (res) {
@@ -369,6 +338,9 @@ $(document).on("ready",function(){
         renderMessage('send',msg, $("#roomnow").val());
         scrollToBottom();
     });
+    socket.on('room_message', function(msg){
+        renderMessageroom('send',msg, $("#roomnow").val());
+    });
     function formatAMPM(date) {
         var hours = date.getHours();
         var minutes = date.getMinutes();
@@ -396,10 +368,8 @@ function renderMessage(index,value,room) {
     if(index != 'send'){
         value = JSON.parse(value);
     }
-    console.log(value);
     var html ='';
     user_online = $('#user_online').val();
-    console.log('userrrrrr'+ user_online +  '   ' + value.name);
     if(user_online == value.name){
         html='<li class="messege-row">';
         html +='<ul class="message-list sent-message">';
@@ -438,6 +408,19 @@ function renderMessage(index,value,room) {
     $('#'+room).append(html);  // append to list
     return;
 }
+function renderMessageroom(index,value,room) {
+    if(index != 'send'){
+        value = JSON.parse(value);
+    }
+    var html ='';
+        html='<span>';
+        html += "<small class='time'>" + getTime(value.created_date) + " </small>";
+        html += "<span class='name'>" + value.name + ": </span>";
+        html += "<span class='msg' style='color:"+value.color+"'>" + showEmoji(value.text); + "</span>";
+        html +='</span>';
+    $('#last_'+room).append(html);  // append to list
+    return;
+}
 function getTime(timestamp) {
     var t, h, m, s, time;
     t = new Date(timestamp);
@@ -448,7 +431,6 @@ function getTime(timestamp) {
 }
 
 function scrollToBottom () {
-    console.log($('.messages-list').height());
     $(window).scrollTop($('.messages-list').height());
     $('.messages-wrapper').scrollTop($('.messages-wrapper')[0].scrollHeight);
 }

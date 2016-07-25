@@ -1,6 +1,14 @@
-function onDeviceReady(){
-    console.log('file');
-         var w = window.innerWidth;    console.log('w'+w);
+//function onDeviceReady(){
+var address = 'http://chat.asemanapps.ir';
+$("#main .contain").css("height",screen.height - $(".top-nav").height() - $("footer").height() + 39);
+$("#main .messages-wrapper").css("height",screen.height - $(".top-nav").height() - $("footer").height() - 36);
+$("#main .contain").css("overflow-y","scroll");
+$("#main .contain").css("overflow-x","hidden");
+$(".img-loading").hide();
+function file(){
+    console.log('file js is working');
+
+    var w = window.innerWidth;    console.log('w'+w);
 
     var h = window.innerHeight;    console.log('h'+h);
 
@@ -48,6 +56,7 @@ function onDeviceReady(){
             $('#session').val(msg[0]);
             $('#user_online').val(msg[1]);
             load(msg[0],msg[1]);
+            loadroom();
 
         }
     }else{
@@ -57,10 +66,12 @@ function onDeviceReady(){
         $('#login').show();
     }
     $(document).on('keyup','#code',function(){
-        if($(this).val().length == 5) {
+        console.log('start');
+        console.log($(this).val().length);
+        if($(this).val().length >= 5) {
             console.log($("#code").val());
             console.log($("#tel").text());
-            $.post("http://192.168.100.23:4000/start", {
+            $.post(address+":4000/start", {
                 code: $("#code").val(),
                 telephon: $("#tel").text()
             }, function (data) {
@@ -79,6 +90,7 @@ function onDeviceReady(){
                     $('#session').val(session);
                     $('#user_online').val(user_online);
                     load(session, user_online);
+                    loadroom();
                 } else {
                     alert(data.message);
                 }
@@ -92,13 +104,61 @@ function onDeviceReady(){
         $('#main').hide();
         $('#login').show();
         $('#nav-mobile').hide();
-        $.post("http://192.168.100.23:4000/logout",{
+        $.post(address+":4000/logout",{
         },function(data) {
 alert('logout');
         });
     });
+    function loadroom() {
+        console.log('loadroom1');
+        $.get(address+":4000/loadRoom?session="+$('#session').val()+"&user_online="+$('#user_online').val(), function (res) {
+            user_online = $('#user_online').val();
+            session     = $('#session').val();
+            console.log(user_online);
+            console.log(session);
+            $.each(res.message, function (index, value) {
+                value = JSON.parse(value);
+                console.log(value);
+
+                if(!index){
+                    checked="checked";
+                    $("#roomnow").val(value.room);
+                    $("#contact").val(value.contact);
+                    $("#namecontact").val(value.name);
+                    window.room = value.room;
+                    $(".messages-list").attr('id',window.room);
+                }else{
+                    checked="";
+                }
+                html ='<li class="navbar-text navbar-right "  >' ;
+                html +='<img class="group-avatar" src="'+value.img+'" />';
+                html += '<a class="joinRoom ' + checked + '"  data-contact="'+value.contact+'" data-id="' + value.room + '">';
+                html += value.name ;
+                html +='</a>';
+                if(value.messagelast != undefined){
+                    html += '<span class="group-message">'+ value.messagelast.substr(0, 25)+' ...</span>';
+                }
+                if(value.number){
+                    html += '<span class="new-unread">'+value.number+'</span>';
+                }
+                html += '<i class="material-icons done-all">done_all</i>';
+                html +='</li>';
+                $("#Room").append(html);
+
+            });
+            var contact = $('#contact').val();
+
+            $.get(address+':4000/loadChat?room='+window.room+'&contact='+contact+'&session='+session+'&user_online='+user_online,function(res){
+                $.each(res.message,function(index,value) {
+                    renderMessage(index,value,window.room);
+                });
+                scrollToBottom();
+            });
+        });
+    }
+
     function load(session,user_online) {
-        $.get(address+"/loadRoom?session="+session+"&user_online="+user_online, function (res) {
+        $.get(address+":4000/loadRoom?session="+session+"&user_online="+user_online, function (res) {
             user_online = $('#user_online').val();
             session     = $('#session').val();
             $.each(res.message, function (index, value) {

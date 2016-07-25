@@ -12,7 +12,8 @@
         
     </head>
     <body>
-        <div id="login">
+        <div class="img-loading" ></div>
+        <div id="login" style="display: none;">
             <div class="start-page all-page fix-height" id="start-page">
                 <div class="start-page-header page-header">
                     <img src="img/1.svg" />
@@ -27,11 +28,14 @@
                         <p>Please confirm your country code and enter</p>
                         <p>your phone number</p>
                         <div class="row" style="text-align: center; margin-top: 20px;">
-                            <input type="text" value="Iran" />
+                            <input id="country" type="text" value="Iran +98" />
                         </div>
-                        <div class="row" style="text-align: center;">
+                        <div class="row" style="text-align: center;margin-top: 15px;">
                             <input type="hidden" value="false" id="check_code">
-                            <input type="text" value="+98" id="telephon" />
+                            <div style="width: 170px;position: relative;margin: 0 auto;">
+                                <input type="text" value="" id="telephon" float: left;" />
+                            <a style="display: none;"  class="btn last-btn small-next">Done</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -45,35 +49,29 @@
                 </div>
                 <div class="start-page-footer page-footer">
                     <a  class="btn start-message-btn last-btn start-page-section">Start Messaging</a>
-                    <a style="display: none;" id="login-submit"  class="btn enter-number-btn last-btn">Next</a>
+                    <a style="display: none;" id="login-submit"  class="btn enter-number-btn last-btn login-submit">Next</a>
                 </div>
              </div>
         </div>
-        <div id="main">
-            <header class="menu-down">
+        <div id="main" style="display: none">
+            <header>
                 <nav class="top-nav">
-                    <div class="">
-                        <!-- start first header -->
-
-                        <!-- end first header -->
-                    </div>
                         <div class="container header-data">
                             <!-- start second header -->
-                            <a class="button-collapse top-nav full hide-on-large-only" data-activates="nav-mobile" href="#">
+                        <!--    <a class="button-collapse top-nav full hide-on-large-only" data-activates="nav-mobile" href="#"> -->
                                 <!--<i class="material-icons mob-menu">menu</i>-->
-                            </a>
-                            <i class="material-icons second-menu">reorder</i>
-                            <div class="nav-wrapper"><a class="page-title"><img src="http://192.168.100.22:4000/img/logo.png" class="logo-img"></a></div>
+                      <!--      </a> -->
+                      <!--      <i class="material-icons second-menu">reorder</i> -->
+                            <a href="#" data-activates="slide-out" class="button-collapse" style="display: block"><i class="small material-icons">menu</i></a>
+                            <div class="nav-wrapper"><a class="page-title"><img src="http://chat.asemanapps.ir:4000/img/logo.png" class="logo-img"></a></div>
+                            <i class="material-icons back-icon hide">reply</i>
                           <!-- end second header -->
                         </div>
-          </nav>
+                </nav>
 
 
             <!-- start menuuuuu -->
-                <ul class="side-nav fixed" id="nav-mobile" style="transform: translateX(0%);">
-                    <li class="width-menu">
-                        <i class="material-icons main-menu">reorder</i>
-                    </li>
+                <ul class="side-nav" id="slide-out">
                     <!-- <li class="logo"><a class="brand-logo" href="http://materializecss.com/" id="logo-container">
                         <object data="res/materialize.svg" type="image/svg+xml" id="front-page-logo">Your browser does not support SVG</object></a></li> -->
 
@@ -86,17 +84,17 @@
                 <!-- end menuuuuu -->
             </header>
 
-            <main class="menu-down"><div class="container">
-                 <div class="row">
+            <main><div class="container">
+                    <div class="row">
                      <div class="s12">
                          <!-- start main content -->
                          <div class="row" id="main">
-                             <div class="col l3 m3 s3">
+                             <div class="col l3 m3 s12 group-contain contain">
                                  <ul id="Room">
 
                                  </ul>
                              </div>
-                             <div class="col l9 m9 s9 chat">
+                             <div class="col l9 m9 s12 chat chat-contain contain">
                                  <div id="chat">
                                      <div class="messages-wrapper">
                                          <ul class="messages-list">
@@ -105,23 +103,34 @@
                                      <div class="input-wrapper">
 
                                          <form id="form" action="" enctype="multipart/form-data">
-                                             <input id="m"  autocomplete="off" />
-                                             <input id="colorStyle" type="color" placeHolder='#000' title="font color" />
-                                             <input id="roomnow" type="text" readonly="readonly"  />
-                                             <input id="contact" type="text" readonly="readonly"  />
+                                             
+                                             
+                                             <input id="roomnow" type="hidden" readonly="readonly"  />
+                                             <input id="contact" type="hidden" readonly="readonly"  />
 
-                                             <input id="namecontact" type="text" readonly="readonly"  />
-                                             <input type="text" id="user_online" readonly="readonly" >
-                                             <input id="session" type="text" readonly="readonly"  />
+                                             <input id="namecontact" type="hidden" readonly="readonly"  />
+                                             <input type="hidden" id="user_online" readonly="readonly" >
+                                             <input id="session" type="hidden" readonly="readonly"  />
                                              <input id="emojii" type="hidden"  value=""/>
-                                             <button class="btn btn-success">Send</button>
-                                             <input id="emoji" type="button" value="emoji" title="emoji" class="btn btn-success"/>
+                                             <input id="colorStyle" type="color" placeHolder='#000' title="font color" class="hide" />
                                              <div id="emojiWrapper">
                                              </div>
-                                <span class="btn btn-success fileinput-button"  title="select file">
-                                  <input id="fileupload" type="file" name='fileUploaded'  >
-                                  <div id="select">Select files...</div>
-                                </span>
+                                             <div class="action-btn-row">
+                                                 <div class="action-btn-div">
+                                                    <button id="emoji"  class="btn action-btn left insert_emoticon"><i class="material-icons">insert_emoticon</i></button>
+                                                    <input id="m"  autocomplete="off" class="left" />
+
+                                                    <button class="btn action-btn send-btn right" style="display: none;"><i class="material-icons send-icon">send</i></button> 
+                                                   <div class="attach-file-div right">
+                                                       <i class="material-icons attach-icon">attach_file</i>
+                                                       <span class="btn btn-success fileinput-button"  title="select file">
+                                                         <input id="fileupload" type="file" name='fileUploaded'  >
+                                                         <div id="select">Select files...</div>
+                                                       </span>
+                                                   </div>
+
+                                                </div>
+                                             </div>
                                          </form>
                                      </div>
                                  </div>
@@ -133,46 +142,46 @@
                                      <input type="hidden" id="avatar" placeholder="Avatar" class="form-control"><br>
                                      <div id="list_avatar">
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar1.jpg" class="avatar"  id="Avatar1" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar1.jpg" class="avatar"  id="Avatar1" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar2.jpg"  class="avatar" id="Avatar2" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar2.jpg"  class="avatar" id="Avatar2" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar3.jpg" class="avatar" id="Avatar3" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar3.jpg" class="avatar" id="Avatar3" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar4.jpg" class="avatar" id="Avatar4" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar4.jpg" class="avatar" id="Avatar4" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar5.jpg" class="avatar" id="Avatar5" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar5.jpg" class="avatar" id="Avatar5" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar6.jpg" class="avatar" id="Avatar6" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar6.jpg" class="avatar" id="Avatar6" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar7.jpg" class="avatar" id="Avatar7" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar7.jpg" class="avatar" id="Avatar7" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar8.jpg"  class="avatar" id="Avatar8" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar8.jpg"  class="avatar" id="Avatar8" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar9.jpg"  class="avatar" id="Avatar9" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar9.jpg"  class="avatar" id="Avatar9" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar10.jpg"  class="avatar" id="Avatar10" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar10.jpg"  class="avatar" id="Avatar10" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar11.jpg"  class="avatar" id="Avatar11" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar11.jpg"  class="avatar" id="Avatar11" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar12.jpg"  class="avatar" id="Avatar12" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar12.jpg"  class="avatar" id="Avatar12" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar14.jpg"  class="avatar" id="Avatar13" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar14.jpg"  class="avatar" id="Avatar13" />
                                          </div>
                                          <div class="avatar-thumb">
-                                             <img src="http://192.168.100.22:4000/img/avatars/Avatar15.jpg"  class="avatar" id="Avatar14" />
+                                             <img src="http://chat.asemanapps.ir:4000/img/avatars/Avatar15.jpg"  class="avatar" id="Avatar14" />
                                          </div>
                                          <div class="chat-box"></div>
                                      </div>
@@ -191,7 +200,7 @@
         </main>
 
 
-            <footer class="page-footer menu-down">
+            <footer class="page-footer">
           <div class="container">
             <div class="row">
                 <!-- start first footer -->
@@ -204,7 +213,7 @@
             <div class="container">
 
                 <!-- start second foter -->
-                &copy; 2014-2016 Materialize, All rights reserved.
+                &copy; 2014-2016 Aseman.co
                 <a href="https://github.com/Dogfalo/materialize/blob/master/LICENSE" class="grey-text text-lighten-4 right">MIT License</a>
             <!-- end second footer -->
             </div>
@@ -214,26 +223,95 @@
         </div>
 
         <script src="js/jquery.min.js"></script>
-        <script type="text/javascript" src="cordova.js"></script>
         <script src="js/materialize.min.js"></script>
-
-        
+		<script type="text/javascript" src="cordova.js"></script>
         <script src="js/socket.io-1.2.0.js"></script>
 
         <script src="js/custom.js"></script>
         <script src="js/chatroom.js"></script>
 
-        <script src="js/chat.js"></script>
-        <script src="js/web.js"></script>
-<script>
-$(document).ready(function(){
-    document.addEventListener("deviceready",onDeviceReady,false);
-});
-function onDeviceReady(){
-	console.log('test');
-}
-</script>
-        <script src="js/file.js"></script>
+        <script src="js/chat.js" ></script>
+        <script>
+            function loadjscssfile(filename, filetype){
+                if (filetype=="js"){ //if filename is a external JavaScript file
+                    var fileref=document.createElement('script');
+                    fileref.setAttribute("type","text/javascript");
+                    fileref.setAttribute("src", filename);
+                }
+                else if (filetype=="css"){ //if filename is an external CSS file
+                    var fileref=document.createElement("link")
+                    fileref.setAttribute("rel", "stylesheet")
+                    fileref.setAttribute("type", "text/css")
+                    fileref.setAttribute("href", filename)
+                }
+                if (typeof fileref!="undefined")
+                    document.getElementsByTagName("head")[0].appendChild(fileref)
+            }
+            /**
+             * Determine the mobile operating system.
+             * This function either returns 'iOS', 'Android' or 'unknown'
+             *
+             * @returns {String}
+             */
+            function getMobileOperatingSystem() {
+                var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+                if( userAgent.match( /iPad/i ) || userAgent.match( /iPhone/i ) || userAgent.match( /iPod/i ) )
+                {
+                    return 'iOS';
+
+                }
+                else if( userAgent.match( /Android/i ) )
+                {
+
+                    return 'Android';
+                }
+                else
+                {
+                    return 'unknown';
+                }
+            }
+
+            $(document).ready(function(){
+                if(getMobileOperatingSystem()=='Android'){
+                	document.addEventListener("deviceready",onDeviceReady,false);
+/*
+                    $.getScript( "cordova.js" )
+                            .done(function( script, textStatus ) {
+                				document.addEventListener("deviceready",onDeviceReady,false);
+                                console.log('cordova js loaded');
+                            })
+                            .fail(function( jqxhr, settings, exception ) {
+                                alert('Failed to load script');
+                            });
+*/
+                    function onDeviceReady(){
+						console.log('cordova js is working');
+                   		$.getScript( "js/file.js" )
+                            .done(function( script, textStatus ) {
+								file();
+                            })
+                            .fail(function( jqxhr, settings, exception ) {
+                                alert('Failed to load script');
+                            });
+                    }
+//        loadjscssfile("js/file.js", "js"); //dynamically load and add this .js file
+//        loadjscssfile("cordova.js", "js"); //dynamically load and add this .js file
+
+                }else{
+                    $.getScript( "js/web.js" )
+                            .done(function( script, textStatus ) {
+                                console.log("load we js");
+                            })
+                            .fail(function( jqxhr, settings, exception ) {
+                                alert('Failed to load script');
+                            });
+                    console.log('web');
+//        loadjscssfile("js/web.js", "js"); //dynamically load and add this .js file
+                }
+            });
+
+        </script>
 
 
     </body>
