@@ -179,7 +179,7 @@ alert('logout');
             });
             var contact = $('#contact').val();
 
-            $.get(address+'/loadChat?room='+window.room+'&contact='+contact+'&session='+session+'&user_online='+user_online,function(res){
+            $.get(address+':4000/loadChat?room='+window.room+'&contact='+contact+'&session='+session+'&user_online='+user_online,function(res){
                 $.each(res.message,function(index,value) {
                     renderMessage(index,value,window.room);
                 });

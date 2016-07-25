@@ -189,19 +189,20 @@ body {
         width: 100%;
     }
     #Room {
-        padding:0px 18px;
+        padding:10px 18px 30px 18px;
     }
     #Room li {
-        padding:10px 0px;
+        padding:0 0 15px;
         position: relative;
         border-bottom: 1px solid #eee;
     }
     #Room li a {
-        bottom: 1px;
+        bottom: 5px;
         font-size: 11px;
         font-weight: bold;
         left: 0;
         position: absolute;
+        color: #3F51B5;
     }
     .small-next {
         border: 0 none !important;
@@ -224,8 +225,8 @@ body {
         box-shadow: inherit;
     }
     .group-avatar {
-        width: 35px;
-        height: 35px;
+        width: 45px;
+        height: 45px;
     }
     .group-contain {
         padding: 0px !important;
@@ -234,26 +235,26 @@ body {
         bottom: 17px;
         color: #666;
         font-size: 11px;
-        left: 42px;
+        left: 52px;
         position: absolute;
     }
     .new-unread {
-        background-color: #D9DADD;
-        color: #3F51B5;
-        font-size: 12px;
-        min-width: 25px;
-        padding: 3px;
+        background-color: #d9dadd;
+        color: #3f51b5;
+        font-size: 9px;
+        min-width: 17px;
+        padding: 2px;
         position: absolute;
         right: 10px;
         text-align: center;
-        top: 34px;
+        top: 27px;
     }
     .done-all {
-        font-size: 17px;
+        color: #3f51b5;
+        font-size: 14px;
         position: absolute;
-        right: 15px;
-        top: 8px;
-        color: #3F51B5;
+        right: 11px;
+        top: 3px;
     }
     .chat-contain {
         padding: 0px !important;
