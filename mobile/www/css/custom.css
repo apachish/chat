@@ -141,6 +141,11 @@ body {
         margin-top: 6px;
         position: absolute;
     }
+    .messages-wrapper {
+        position: absolute;
+        top: 44px;
+        width: 100%;
+    }
     .action-btn {
         background-color: inherit;
         width: 30px;
@@ -152,6 +157,19 @@ body {
     }
     .send-btn {
         margin-right: 8px;
+    }
+    #group-name:focus {
+        border-bottom-color: #3F51B5;
+    }
+    .input-wrapper {
+        height: 47px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #fff;
+    }
+    .message-container {
+        z-index: 0;
     }
     .action-btn:focus {
         background-color: inherit;
@@ -177,6 +195,7 @@ body {
     #m {
         border-bottom: 1px solid #888 !important;
         padding-bottom: 0;
+        margin: 0;
     }
     #m:focus {
         border-bottom: 1px solid #3F51B5 !important;
@@ -203,6 +222,12 @@ body {
         left: 0;
         position: absolute;
         color: #3F51B5;
+    }
+    #new-group-modal {
+       height: 160px; 
+    }
+    .modal-footer a.m-btn {
+        padding: 0 1rem;
     }
     .small-next {
         border: 0 none !important;

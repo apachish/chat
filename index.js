@@ -156,7 +156,7 @@ router.post("/register",function(req,res){
     if(req.body.telephon.length < 10) {
         res.json({"error": true, "message": "telephone number must 10 number. example:9372852427."});
     }else{
-        var key = Math.floor(Math.random() * 99999)+11111;
+        var key = Math.floor(Math.random()*90000) + 10000;
         console.log(key);
         pub.sismember("Telephon", req.body.telephon, function (err, response) {
             if (!response) {
@@ -207,10 +207,10 @@ router.post('/start',function(req,res){
                     if(!status_session){
                         pub.SADD('SESSION_'+info_user.name,sessions.key.session);
                         res.cookie('login',sessions.key.session);
-                        res.json({"error" : false,"message" :JSON.stringify({login:sessions.key.session,device:info_user.name})});
+                        res.json({"error" : false,"message" :JSON.stringify({user:sessions.key.session,telephon:info_user.name})});
 //                           res.render('index.html',{user : req.cookies.device,room:null,roomnow:null,login:sesssion.key.session,device:info_user.name});
                     }else{
-                        res.json({"error" : true,"message" : JSON.stringify({login:sessions.key.session,device:info_user.name})});
+                        res.json({"error" : true,"message" : JSON.stringify({user:sessions.key.session,telephon:info_user.name})});
                     }
                 });
             }else{
@@ -276,11 +276,14 @@ router.post("/addRoom",function(req,res){
 router.get("/loadRoom",function(req,res){
     render_rooms =[];
     if(req.cookies.login || (req.query['session'] && req.query['user_online'])) {
+        console.log('loadroom');
         if(req.cookies.device){
             user = req.cookies.device;
         }else{
             user = req.query['user_online'];
         }
+        console.log(user+'_rooms');
+
         pub.LRANGE(user+'_rooms',0,-1,function (err, room) {
             room.forEach(function(item) {
                 inforoom = JSON.parse(item);
@@ -463,30 +466,30 @@ router.post("/addStatus",function(req,res){
     }
 });
 
-router.get("/addConntact",function(req,res){
-    if(req.cookies.login || (req.query['session'] && req.query['user_online'])) {
+router.post("/addConntact",function(req,res){
+    if(req.cookies.login || (req.body.session && req.body.user_online)) {
+        console.log('addcontact');
         var tel = [];
         if(req.cookies.device){
             user = req.cookies.device;
         }else{
             user =req.query['user_online'];
         }
-        var obj = JSON.parse(fs.readFileSync('../views/contacts.json', 'utf8'));
-        obj.forEach(function(item) {
-            // result = JSON.parse(item);
-            name = item.displayName;
-            pub.HSET(user+"_contact",name,JSON.stringify(item)
-                ,function (err, response) {
-                    listtel = item.phoneNumbers;
-                    listtel.forEach(function(telephon) {
-                        if(telephon.type == 'mobile'){
+        var obj = JSON.parse(req.body.listcontact);
+        console.log('wwww'+JSON.stringify(obj));
+            name = obj.displayName;
+        if(obj.phoneNumbers && obj.phoneNumbers.length>0 ) {
+            pub.HSET(user + "_contact", name, JSON.stringify(obj)
+                , function (err, response) {
+                    listtel = obj.phoneNumbers;
+                    listtel.forEach(function (telephon) {
+                        if (telephon.type == 'mobile') {
                             tel.push(telephon.value);
                         }
                     });
-                    pub.SADD(user+"_contactlist",tel);
                 });
-        });
-        res.json({"error" : false, "message" : obj});
+        }
+        res.json({"error" : false, "message" : 'addcontact :'+name});
 
     } else {
         res.json({"error" : true, "message" : "Please login first."});

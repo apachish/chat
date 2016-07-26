@@ -1,15 +1,11 @@
 <html>
     <head>
-
         <title>Chat :-D</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link href="css/icon.css" rel="stylesheet">
         <link href="css/materialize.min.css" rel="stylesheet">
-        
         <link href="css/custom.css" rel="stylesheet">
-        
-        
     </head>
     <body>
         <div class="img-loading" ></div>
@@ -34,7 +30,7 @@
                             <input type="hidden" value="false" id="check_code">
                             <div style="width: 170px;position: relative;margin: 0 auto;">
                                 <input type="text" value="" id="telephon" float: left;" />
-                            <a style="display: none;"  class="btn last-btn small-next">Done</a>
+                                <a style="display: none;"  class="btn last-btn small-next">Done</a>
                             </div>
                         </div>
                     </div>
@@ -45,7 +41,7 @@
                     <p style="font-weight: bold;">Enter Verification Code</p>
                     <div class="row" style="text-align: center; margin-top: 20px;">
                         <input type="text" id="code" placeholder="verification code" />
-                        </div>
+                    </div>
                 </div>
                 <div class="start-page-footer page-footer">
                     <a  class="btn start-message-btn last-btn start-page-section">Start Messaging</a>
@@ -57,38 +53,23 @@
             <header>
                 <nav class="top-nav">
                         <div class="container header-data">
-                            <!-- start second header -->
-                        <!--    <a class="button-collapse top-nav full hide-on-large-only" data-activates="nav-mobile" href="#"> -->
-                                <!--<i class="material-icons mob-menu">menu</i>-->
-                      <!--      </a> -->
-                      <!--      <i class="material-icons second-menu">reorder</i> -->
-                            <a href="#" data-activates="slide-out" class="button-collapse" style="display: block"><i class="small material-icons">menu</i></a>
-                            <div class="nav-wrapper"><a class="page-title"><img src="http://chat.asemanapps.ir:4000/img/logo.png" class="logo-img"></a></div>
+                            <a href="#" data-activates="slide-out" class="button-collapse menu-main" style="display: block"><i class="small material-icons">menu</i></a>
+                            <div class="nav-wrapper"><a class="page-title"><img src="http://chat.asemanapps.ir:4000/img/1.svg" class="logo-img"></a></div>
                             <i class="material-icons back-icon hide">reply</i>
-                          <!-- end second header -->
                         </div>
                 </nav>
-
-
-            <!-- start menuuuuu -->
                 <ul class="side-nav" id="slide-out">
-                    <!-- <li class="logo"><a class="brand-logo" href="http://materializecss.com/" id="logo-container">
-                        <object data="res/materialize.svg" type="image/svg+xml" id="front-page-logo">Your browser does not support SVG</object></a></li> -->
-
-                    <li class="bold"><a class="waves-effect waves-teal" id="new-group">New Group</a></li>
+                    <li class="bold"><a class="waves-effect waves-teal modal-trigger "  href="#new-group-modal" id="new-group">New Group</a></li>
                     <li class="bold"><a class="waves-effect waves-teal" id="chat-list">Chat List</a></li>
                     <li class="bold "><a class="waves-effect waves-teal" id="contacts" >Contact</a></li>
                     <li class="bold "><a class="waves-effect waves-teal" id="profile">Profile</a></li>
                     <li class="bold"><a class="waves-effect waves-teal" id="logout">Logout</a></li>
                 </ul>
-                <!-- end menuuuuu -->
             </header>
-
             <main><div class="container">
                     <div class="row">
                      <div class="s12">
-                         <!-- start main content -->
-                         <div class="row" id="main">
+                         <div class="row">
                              <div class="col l3 m3 s12 group-contain contain">
                                  <ul id="Room">
 
@@ -101,10 +82,7 @@
                                          </ul>
                                      </div>
                                      <div class="input-wrapper">
-
                                          <form id="form" action="" enctype="multipart/form-data">
-                                             
-                                             
                                              <input id="roomnow" type="hidden" readonly="readonly"  />
                                              <input id="contact" type="hidden" readonly="readonly"  />
 
@@ -119,7 +97,6 @@
                                                  <div class="action-btn-div">
                                                     <button id="emoji"  class="btn action-btn left insert_emoticon"><i class="material-icons">insert_emoticon</i></button>
                                                     <input id="m"  autocomplete="off" class="left" />
-
                                                     <button class="btn action-btn send-btn right" style="display: none;"><i class="material-icons send-icon">send</i></button> 
                                                    <div class="attach-file-div right">
                                                        <i class="material-icons attach-icon">attach_file</i>
@@ -128,7 +105,6 @@
                                                          <div id="select">Select files...</div>
                                                        </span>
                                                    </div>
-
                                                 </div>
                                              </div>
                                          </form>
@@ -138,7 +114,6 @@
                                      <input type="text" id="name" placeholder="Name" class="form-control"><br>
                                      <input type="text" id="lastname" placeholder="LastName" class="form-control"><br>
                                      <input type="text" id="telephon_number" value=""  readonly="readonly" class="form-control"><br>
-
                                      <input type="hidden" id="avatar" placeholder="Avatar" class="form-control"><br>
                                      <div id="list_avatar">
                                          <div class="avatar-thumb">
@@ -187,132 +162,111 @@
                                      </div>
                                      <input type="button" id="login-edit" value="UpDate" class="btn btn-primary">
                                  </div>
-
                              </div>
                          </div>
-
-                         <!-- end main-content -->
                      </div>
                 </div>
       </div>
-
-
         </main>
-
-
-            <footer class="page-footer">
-          <div class="container">
-            <div class="row">
-                <!-- start first footer -->
-
-
-                <!-- end first footer -->
+    </div>
+    <div id="new-group-modal" class="modal modal-fixed-footer">
+      <div class="modal-content">
+          <p>Enter group name</p>
+          <input type="text" id="group-name" />
+      </div>
+      <div class="modal-footer">
+          <a class="modal-action modal-close waves-effect waves-blue btn-flat create-group m-btn" href="#!">create</a>
+          <a class="modal-action modal-close waves-effect waves-red btn-flat m-btn" href="#!">cancel</a>
             </div>
-          </div>
-          <div class="footer-copyright">
-            <div class="container">
+    </div>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/materialize.min.js"></script>
+            <script type="text/javascript" src="cordova.js"></script>
+    <script src="js/socket.io-1.2.0.js"></script>
 
-                <!-- start second foter -->
-                &copy; 2014-2016 Aseman.co
-                <a href="https://github.com/Dogfalo/materialize/blob/master/LICENSE" class="grey-text text-lighten-4 right">MIT License</a>
-            <!-- end second footer -->
-            </div>
-          </div>
-        </footer>
+    <script src="js/custom.js"></script>
+    <script src="js/chatroom.js"></script>
 
-        </div>
-
-        <script src="js/jquery.min.js"></script>
-        <script src="js/materialize.min.js"></script>
-		<script type="text/javascript" src="cordova.js"></script>
-        <script src="js/socket.io-1.2.0.js"></script>
-
-        <script src="js/custom.js"></script>
-        <script src="js/chatroom.js"></script>
-
-        <script src="js/chat.js" ></script>
-        <script>
-            function loadjscssfile(filename, filetype){
-                if (filetype=="js"){ //if filename is a external JavaScript file
-                    var fileref=document.createElement('script');
-                    fileref.setAttribute("type","text/javascript");
-                    fileref.setAttribute("src", filename);
-                }
-                else if (filetype=="css"){ //if filename is an external CSS file
-                    var fileref=document.createElement("link")
-                    fileref.setAttribute("rel", "stylesheet")
-                    fileref.setAttribute("type", "text/css")
-                    fileref.setAttribute("href", filename)
-                }
-                if (typeof fileref!="undefined")
-                    document.getElementsByTagName("head")[0].appendChild(fileref)
+    <script src="js/chat.js" ></script>
+    <script>
+        function loadjscssfile(filename, filetype){
+            if (filetype=="js"){ //if filename is a external JavaScript file
+                var fileref=document.createElement('script');
+                fileref.setAttribute("type","text/javascript");
+                fileref.setAttribute("src", filename);
             }
-            /**
-             * Determine the mobile operating system.
-             * This function either returns 'iOS', 'Android' or 'unknown'
-             *
-             * @returns {String}
-             */
-            function getMobileOperatingSystem() {
-                var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
-                if( userAgent.match( /iPad/i ) || userAgent.match( /iPhone/i ) || userAgent.match( /iPod/i ) )
-                {
-                    return 'iOS';
-
-                }
-                else if( userAgent.match( /Android/i ) )
-                {
-
-                    return 'Android';
-                }
-                else
-                {
-                    return 'unknown';
-                }
+            else if (filetype=="css"){ //if filename is an external CSS file
+                var fileref=document.createElement("link")
+                fileref.setAttribute("rel", "stylesheet")
+                fileref.setAttribute("type", "text/css")
+                fileref.setAttribute("href", filename)
             }
+            if (typeof fileref!="undefined")
+                document.getElementsByTagName("head")[0].appendChild(fileref)
+        }
+        /**
+         * Determine the mobile operating system.
+         * This function either returns 'iOS', 'Android' or 'unknown'
+         *
+         * @returns {String}
+         */
+        function getMobileOperatingSystem() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
-            $(document).ready(function(){
-                if(getMobileOperatingSystem()=='Android'){
-                	document.addEventListener("deviceready",onDeviceReady,false);
+            if( userAgent.match( /iPad/i ) || userAgent.match( /iPhone/i ) || userAgent.match( /iPod/i ) )
+            {
+                return 'iOS';
+
+            }
+            else if( userAgent.match( /Android/i ) )
+            {
+
+                return 'Android';
+            }
+            else
+            {
+                return 'unknown';
+            }
+        }
+        $(document).ready(function(){
+            if(getMobileOperatingSystem()=='Android'){
+                    document.addEventListener("deviceready",onDeviceReady,false);
 /*
-                    $.getScript( "cordova.js" )
-                            .done(function( script, textStatus ) {
-                				document.addEventListener("deviceready",onDeviceReady,false);
-                                console.log('cordova js loaded');
-                            })
-                            .fail(function( jqxhr, settings, exception ) {
-                                alert('Failed to load script');
-                            });
+                $.getScript( "cordova.js" )
+                        .done(function( script, textStatus ) {
+                                            document.addEventListener("deviceready",onDeviceReady,false);
+                            console.log('cordova js loaded');
+                        })
+                        .fail(function( jqxhr, settings, exception ) {
+                            alert('Failed to load script');
+                        });
 */
-                    function onDeviceReady(){
-						console.log('cordova js is working');
-                   		$.getScript( "js/file.js" )
-                            .done(function( script, textStatus ) {
-								file();
-                            })
-                            .fail(function( jqxhr, settings, exception ) {
-                                alert('Failed to load script');
-                            });
-                    }
+                function onDeviceReady(){
+                                            console.log('cordova js is working');
+                            $.getScript( "js/file.js" )
+                        .done(function( script, textStatus ) {
+                                                            file();
+                        })
+                        .fail(function( jqxhr, settings, exception ) {
+                            alert('Failed to load script');
+                        });
+                }
 //        loadjscssfile("js/file.js", "js"); //dynamically load and add this .js file
 //        loadjscssfile("cordova.js", "js"); //dynamically load and add this .js file
 
-                }else{
-                    $.getScript( "js/web.js" )
-                            .done(function( script, textStatus ) {
-                                console.log("load we js");
-                            })
-                            .fail(function( jqxhr, settings, exception ) {
-                                alert('Failed to load script');
-                            });
-                    console.log('web');
+            }else{
+                $.getScript( "js/web.js" )
+                        .done(function( script, textStatus ) {
+                            console.log("load we js");
+                        })
+                        .fail(function( jqxhr, settings, exception ) {
+                            alert('Failed to load script');
+                        });
+                console.log('web');
 //        loadjscssfile("js/web.js", "js"); //dynamically load and add this .js file
-                }
-            });
+            }
+        });
 
-        </script>
-
-
+    </script>
     </body>
 </html>

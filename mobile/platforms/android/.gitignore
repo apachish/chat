@@ -16,3 +16,4 @@ res
 src
 res*
 assets/*
+.gradle

@@ -1,10 +1,15 @@
 //function onDeviceReady(){
-var address = 'http://chat.asemanapps.ir';
+var address_file = 'http://chat.asemanapps.ir:4000';
 $("#main .contain").css("height",screen.height - $(".top-nav").height() - $("footer").height() + 39);
 $("#main .messages-wrapper").css("height",screen.height - $(".top-nav").height() - $("footer").height() - 36);
 $("#main .contain").css("overflow-y","scroll");
 $("#main .contain").css("overflow-x","hidden");
 $(".img-loading").hide();
+$(window).on("orientationchange",function(){
+    alert("The  	orientation has changed!");
+    $("#m").css("width",screen.width - 50+"px");
+
+});
 function file(){
     console.log('file js is working');
 
@@ -55,8 +60,9 @@ function file(){
 
             $('#session').val(msg[0]);
             $('#user_online').val(msg[1]);
+            console.log('session'+msg[0]);
+            console.log('user_online'+msg[1]);
             load(msg[0],msg[1]);
-            loadroom();
 
         }
     }else{
@@ -71,15 +77,16 @@ function file(){
         if($(this).val().length >= 5) {
             console.log($("#code").val());
             console.log($("#tel").text());
-            $.post(address+":4000/start", {
+            $.post(address_file+"/start", {
                 code: $("#code").val(),
                 telephon: $("#tel").text()
             }, function (data) {
                 console.log('data' + JSON.stringify(data));
                 if (!data.error) {
                     msg = JSON.parse(data.message);
-                    var session = msg.login;
-                    var user_online = msg.device;
+                    console.log(msg);
+                    var session = msg.user;
+                    var user_online = msg.telephon;
                     console.log('file' + session);
                     // removeFile(local_storage_path+'session.txt');
                     console.log('writefile');
@@ -87,12 +94,13 @@ function file(){
                     $('#main').show();
                     $('#login').hide();
                     $('#nav-mobile').show();
+                    console.log('sessionnn'+session);
+                    console.log('user_onlineee'+user_online);
                     $('#session').val(session);
                     $('#user_online').val(user_online);
                     load(session, user_online);
-                    loadroom();
                 } else {
-                    alert(data.message);
+                    console.log(data.message);
                 }
             });
 
@@ -104,88 +112,62 @@ function file(){
         $('#main').hide();
         $('#login').show();
         $('#nav-mobile').hide();
-        $.post(address+":4000/logout",{
+        $.post(address_file+"/logout",{
         },function(data) {
 alert('logout');
         });
     });
-    function loadroom() {
-        console.log('loadroom1');
-        $.get(address+":4000/loadRoom?session="+$('#session').val()+"&user_online="+$('#user_online').val(), function (res) {
-            user_online = $('#user_online').val();
-            session     = $('#session').val();
-            console.log(user_online);
-            console.log(session);
-            $.each(res.message, function (index, value) {
-                value = JSON.parse(value);
-                console.log(value);
 
-                if(!index){
-                    checked="checked";
-                    $("#roomnow").val(value.room);
-                    $("#contact").val(value.contact);
-                    $("#namecontact").val(value.name);
-                    window.room = value.room;
-                    $(".messages-list").attr('id',window.room);
-                }else{
-                    checked="";
-                }
-                html ='<li class="navbar-text navbar-right "  >' ;
-                html +='<img class="group-avatar" src="'+value.img+'" />';
-                html += '<a class="joinRoom ' + checked + '"  data-contact="'+value.contact+'" data-id="' + value.room + '">';
-                html += value.name ;
-                html +='</a>';
-                if(value.messagelast != undefined){
-                    html += '<span class="group-message">'+ value.messagelast.substr(0, 25)+' ...</span>';
-                }
-                if(value.number){
-                    html += '<span class="new-unread">'+value.number+'</span>';
-                }
-                html += '<i class="material-icons done-all">done_all</i>';
-                html +='</li>';
-                $("#Room").append(html);
-
-            });
-            var contact = $('#contact').val();
-
-            $.get(address+':4000/loadChat?room='+window.room+'&contact='+contact+'&session='+session+'&user_online='+user_online,function(res){
-                $.each(res.message,function(index,value) {
-                    renderMessage(index,value,window.room);
-                });
-                scrollToBottom();
-            });
-        });
-    }
 
     function load(session,user_online) {
-        $.get(address+":4000/loadRoom?session="+session+"&user_online="+user_online, function (res) {
-            user_online = $('#user_online').val();
-            session     = $('#session').val();
-            $.each(res.message, function (index, value) {
-                value = JSON.parse(value);
-                console.log(value);
-                if(!index){
-                    checked="checked";
-                    $("#roomnow").val(value.room);
-                    $("#contact").val(value.contact);
-                    $("#namecontact").val(value.name);
-                    window.room = value.room;
-                    $(".messages-list").attr('id',window.room);
-                }else{
-                    checked="";
-                }
-                $("#Room").append('<li class="navbar-text navbar-right "  ><a class="joinRoom ' + checked + '"  data-contact="'+value.contact+'" data-id="' + value.room + '">' + value.name + '</a></li>');
+            console.log('loadroom1');
+            console.log(address_file+"/loadRoom?session="+session+"&user_online="+user_online);
+            $.get(address_file+"/loadRoom?session="+session+"&user_online="+user_online, function (res) {
+                user_online = $('#user_online').val();
+                session     = $('#session').val();
+                console.log(session);
+                $.each(res.message, function (index, value) {
+                    console.log('rooooooooooom1'+value);
 
-            });
-            var contact = $('#contact').val();
+                    value = JSON.parse(value);
+                    console.log('rooooooooooom'+value);
 
-            $.get(address+':4000/loadChat?room='+window.room+'&contact='+contact+'&session='+session+'&user_online='+user_online,function(res){
-                $.each(res.message,function(index,value) {
-                    renderMessage(index,value,window.room);
+                    if(!index){
+                        checked="checked";
+                        $("#roomnow").val(value.room);
+                        $("#contact").val(value.contact);
+                        $("#namecontact").val(value.name);
+                        window.room = value.room;
+                        $(".messages-list").attr('id',window.room);
+                    }else{
+                        checked="";
+                    }
+                    html ='<li class="navbar-text navbar-right "  >' ;
+                    console.log('imge'+address_file+value.img);
+                    html +='<img class="group-avatar" src="'+address_file+value.img+'" />';
+                    html += '<a class="joinRoom ' + checked + '"  data-contact="'+value.contact+'" data-id="' + value.room + '">';
+                    html += value.name ;
+                    html +='</a>';
+                    if(value.messagelast != undefined){
+                        html += '<span class="group-message">'+ value.messagelast.substr(0, 25)+' ...</span>';
+                    }
+                    if(value.number){
+                        html += '<span class="new-unread">'+value.number+'</span>';
+                    }
+                    html += '<i class="material-icons done-all">done_all</i>';
+                    html +='</li>';
+                    $("#Room").append(html);
+
                 });
-                scrollToBottom();
+                var contact = $('#contact').val();
+
+                $.get(address_file+'/loadChat?room='+window.room+'&contact='+contact+'&session='+session+'&user_online='+user_online,function(res){
+                    $.each(res.message,function(index,value) {
+                        renderMessage(index,value,window.room);
+                    });
+                    scrollToBottom();
+                });
             });
-        });
     }
     //else{
     //     console.log('return');
@@ -335,3 +317,77 @@ function file_exist(filePath){
          if(version.length==3)
                  return parseInt(version[0])*1000000+parseInt(version[1])*1000+parseInt(version[2]);
      }
+document.addEventListener("deviceready", init, false);
+function init() {
+
+    navigator.contacts.find(
+        [navigator.contacts.fieldType.displayName],
+        gotContacts,
+        errorHandler);
+
+}
+
+function errorHandler(e) {
+    console.log("errorHandler: "+e);
+}
+
+function gotContacts(c) {
+    console.log("gotContacts, number of results "+c.length);
+    html ='';
+    user_online = $('#user_online').val();console.log('online'+user_online);
+    session     = $('#session').val();console.log('session'+session);
+    // $.get(address_file+"/loadContact?session="+session+"&user_online="+user_online, function (res) {
+    //     $.each(res.message, function (index, value) {
+    //         value = JSON.parse(value);
+    //         console.log(value['phoneNumbers']);
+    //         $.each(value['phoneNumbers'],function (key ,tel) {
+    //             if(tel['type'] == 'mobile'){
+    //                 telephon = tel['value'];
+    //                 console.log('tel'+tel['value']);
+    //             }
+    //         });
+    //         if(telephon){
+    //             html +='<li class="navbar-text navbar-right "  >' ;
+    //             html += '<img class="group-avatar" src="'+address_file+'/img/contact-svg.svg" />';
+    //             html += '<a class="joinRoom"  data-contact="true" data-id="' + tel_num + '">';
+    //             html += value['displayName'];
+    //             html +='</a>';
+    //             html +='</li>';
+    //         }
+    //     });
+    // });
+    if(!html){
+        for(var i=0, len=c.length; i<len; i++) {
+            $.post(address_file+"/addConntact",
+                {listcontact:JSON.stringify(c[i]),name:name,session:session ,user_online : user_online},
+                function (res) {
+                    if (!res.error) {
+                        return false;
+                    }
+                    return false;
+                });
+            /*var tel_num = 0;
+            if(c[i].phoneNumbers && c[i].phoneNumbers.length > 0){
+                c[i].phoneNumbers.forEach(function (item) {
+                    if(item.type == 'mobile'){
+                        tel_num = item.value.trim().replace(/^(\+98|0098|098|98|0)?/g,"");
+                        tel_num = tel_num.replace(/\s/g,'');
+                    }
+                });
+            }
+            if(tel_num) {
+                console.log('shahhhh'+tel_num);
+                html +='<li class="navbar-text navbar-right "  >' ;
+                if(c[i].photos && c[i].photos.length > 0) {
+                    html += '<img class="group-avatar" src="' + c[i].photos[0].value + '" />';
+                }else{
+                    html += '<img class="group-avatar" src="'+address_file+'/img/contact-svg.svg" />';
+                }
+                html += '<a class="joinRoom"  data-contact="true" data-id="' + tel_num + '">';
+                html += c[i].displayName;
+                html +='</a>';
+                html +='</li>';
+            }*/
+        }
+    }
+}

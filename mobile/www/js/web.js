@@ -3,8 +3,8 @@ var address = 'http://chat.asemanapps.ir:4000';
 /**
      * Created by shahriar on 7/19/16.
      */
-    $("#main .contain").css("height",screen.height - $(".top-nav").height() - $("footer").height() + 39);
-    $("#main .messages-wrapper").css("height",screen.height - $(".top-nav").height() - $("footer").height() - 36);
+    $(".contain").css("height",screen.height - $(".header-data").height() - 10);
+    $("#main .messages-wrapper").css("height",screen.height - $(".header-data").height() - $(".input-wrapper").height() + 37);
     $("#main .contain").css("overflow-y","scroll");
     $("#main .contain").css("overflow-x","hidden");
     $(".img-loading").hide();
@@ -102,9 +102,10 @@ var address = 'http://chat.asemanapps.ir:4000';
                         session     = msg.login;
                          $('#user_online').val(user_online);
                         $('#session').val(session );
+                    loadroom();
 
                 } else {
-                    alert(data.message);
+                    console.log(data.message);
                 }
             });
         }
